@@ -19,6 +19,8 @@ function saveCodeToStorage(taskId, code) {
 
 /* ── Security helpers ── */
 function isValidUrl(string) {
+  // Accept relative URLs (e.g. '/gemini-api') for proxy usage
+  if (string.startsWith('/')) return true
   try {
     const url = new URL(string)
     return url.protocol === 'http:' || url.protocol === 'https:'
