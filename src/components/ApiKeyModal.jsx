@@ -137,7 +137,7 @@ export default function ApiKeyModal({ config, onSave, onClose }) {
                   <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-s1">{p.icon}</span>
                   <div>
                     <div className="text-sm font-medium text-text">{p.name}</div>
-                    <div className="text-[10px] text-t2 mt-0.5">{p.needsKey ? 'API-Key nötig' : 'Kein Key nötig'}</div>
+                    <div className="text-xs text-t2 mt-0.5">{p.needsKey ? 'API-Key nötig' : 'Kein Key nötig'}</div>
                   </div>
                   {isActive && (
                     <span className="ml-auto text-accent"><Check size={18} /></span>
@@ -159,7 +159,7 @@ export default function ApiKeyModal({ config, onSave, onClose }) {
                 className="w-full bg-s3 text-text text-sm rounded-lg px-3.5 py-2.5 border border-border2 focus:border-accent focus:outline-none font-mono placeholder:text-t3 transition-colors"
                 autoFocus
               />
-              <p className="text-[10px] text-t3 mt-1.5 flex items-center gap-1">🔒 Dein API-Key wird nur lokal im Browser gespeichert.</p>
+              <p className="text-xs text-t3 mt-1.5 flex items-center gap-1">🔒 Dein API-Key wird nur lokal im Browser gespeichert.</p>
             </div>
           )}
 
@@ -179,7 +179,7 @@ export default function ApiKeyModal({ config, onSave, onClose }) {
             </summary>
             <div className="mt-3 space-y-3 pl-2 border-l-2 border-borderc">
               <div>
-                <label className="block text-[11px] text-t2 mb-1">Base URL überschreiben</label>
+                <label className="block text-xs text-t2 mb-1">Base URL überschreiben</label>
                 <input
                   type="text"
                   value={customUrl}
@@ -190,7 +190,7 @@ export default function ApiKeyModal({ config, onSave, onClose }) {
               </div>
               {activeProvider?.needsModel !== false && (
                 <div>
-                  <label className="block text-[11px] text-t2 mb-1">Model überschreiben</label>
+                  <label className="block text-xs text-t2 mb-1">Model überschreiben</label>
                   <input
                     type="text"
                     value={customModel}

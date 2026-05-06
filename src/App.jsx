@@ -52,6 +52,8 @@ export default function App() {
   const toastTimer = useRef(null)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [rightPanelCollapsed, setRightPanelCollapsed] = useState(false)
+  const [sidebarWidth, setSidebarWidth] = useState(220)
+  const [rightPanelWidth, setRightPanelWidth] = useState(260)
 
   const [apiConfig, setApiConfig] = useState(() => ({
     key: localStorage.getItem('api_key') || '',
@@ -182,6 +184,8 @@ Antworte NUR auf Deutsch.
         onSelectTask={handleSelectTask}
         collapsed={sidebarCollapsed}
         onToggleCollapse={() => setSidebarCollapsed(v => !v)}
+        width={sidebarWidth}
+        onWidthChange={setSidebarWidth}
       />
 
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
@@ -215,6 +219,8 @@ Antworte NUR auf Deutsch.
             groupProgress={groupProgress}
             collapsed={rightPanelCollapsed}
             onToggleCollapse={() => setRightPanelCollapsed(v => !v)}
+            width={rightPanelWidth}
+            onWidthChange={setRightPanelWidth}
           />
         </div>
 
