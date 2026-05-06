@@ -29,36 +29,27 @@ export default function Editor({ code, onChange }) {
         oneDark,
         updateListener,
         EditorView.theme({
-          '&': { height: '100%', backgroundColor: '#1e1e1e' },
-          '.cm-scroller': { overflow: 'auto', fontFamily: "'JetBrains Mono', monospace" },
-          '.cm-gutters': { backgroundColor: '#1e1e1e', borderRight: '1px solid #3c3c3c', color: '#858585' },
-          '.cm-activeLineGutter': { backgroundColor: '#2a2d2e' },
+          '&': { height: '100%', backgroundColor: '#0a0b0d' },
+          '.cm-scroller': { overflow: 'auto', fontFamily: "'JetBrains Mono', monospace", backgroundColor: '#0a0b0d' },
+          '.cm-gutters': { backgroundColor: '#0a0b0d', borderRight: '1px solid #ffffff0f', color: '#4e5168' },
+          '.cm-activeLineGutter': { backgroundColor: '#111318' },
+          '.cm-activeLine': { backgroundColor: '#6c63ff08' },
         }),
       ],
     })
 
-    const view = new EditorView({
-      state,
-      parent: editorRef.current,
-    })
-
+    const view = new EditorView({ state, parent: editorRef.current })
     viewRef.current = view
-
-    return () => {
-      view.destroy()
-    }
+    return () => view.destroy()
   }, [])
 
   useEffect(() => {
     const view = viewRef.current
     if (!view) return
-
     const currentDoc = view.state.doc.toString()
     if (code !== currentDoc) {
       isUpdatingRef.current = true
-      view.dispatch({
-        changes: { from: 0, to: currentDoc.length, insert: code }
-      })
+      view.dispatch({ changes: { from: 0, to: currentDoc.length, insert: code } })
       isUpdatingRef.current = false
     }
   }, [code])
