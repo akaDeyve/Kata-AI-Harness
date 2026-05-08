@@ -1,3 +1,5 @@
+import { Eye, Article, Rocket, Globe } from '../../components/Icons'
+
 /* ── Feature Modules Registry ── */
 
 const FEATURES = {
@@ -6,7 +8,7 @@ const FEATURES = {
     type: 'feature',
     name: 'Code Preview',
     description: 'Live-Vorschau von React/JSX-Code im Browser',
-    icon: '👁️',
+    icon: Eye,
     enabled: true,
   },
   tasks: {
@@ -14,7 +16,7 @@ const FEATURES = {
     type: 'feature',
     name: 'Task Datasets',
     description: 'Vordefinierte Programmieraufgaben zum Üben',
-    icon: '📋',
+    icon: Article,
     enabled: true,
   },
   generate: {
@@ -22,7 +24,7 @@ const FEATURES = {
     type: 'feature',
     name: 'KI-Aufgaben Generierung',
     description: 'Neue Aufgaben per KI generieren lassen',
-    icon: '🚀',
+    icon: Rocket,
     enabled: true,
   },
   languages: {
@@ -30,15 +32,7 @@ const FEATURES = {
     type: 'feature',
     name: 'Sprachmodule',
     description: 'Unterstützung für verschiedene Programmiersprachen',
-    icon: '🌐',
-    enabled: true,
-  },
-  themes: {
-    id: 'feature:themes',
-    type: 'feature',
-    name: 'Theme-Unterstützung',
-    description: 'Mehrere visuelle Themes für die Anwendung',
-    icon: '🎨',
+    icon: Globe,
     enabled: true,
   },
 }

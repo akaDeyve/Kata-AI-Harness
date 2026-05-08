@@ -1,9 +1,11 @@
+import { FilePy } from '../../components/Icons'
+
 /* ── Python Language Module ── */
 
 export const PYTHON_CONFIG = {
   id: 'python',
   name: 'Python',
-  icon: '🐍',
+  icon: FilePy,
   extensions: ['.py'],
   defaultStarter: `# Python Aufgabe
 # Dein Code hier

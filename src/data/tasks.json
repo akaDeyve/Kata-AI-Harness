@@ -1,9 +1,7 @@
 [
   {
     "id": 1,
-    "group": "Array-Operationen",
     "name": "Array-Eintrag per ID finden",
-    "difficulty": "Leicht",
     "title": "Array.find() – Eintrag anhand ID ausgeben",
     "description": "Du hast ein Array von Produkten. Schreibe eine Komponente, die mit Array.find() das Produkt mit einer bestimmten ID findet und anzeigt. Behandle den Fall, dass kein Produkt mit der ID existiert (find() gibt undefined zurueck). Zeige dann 'Produkt nicht gefunden' an.",
     "hint": "Nutze products.find(p => p.id === id). Beachte: find() gibt undefined zurueck, wenn nichts gefunden wird. Pruefe das Ergebnis mit if (!product) before rendering.",
@@ -11,9 +9,7 @@
   },
   {
     "id": 2,
-    "group": "Array-Operationen",
     "name": "Array-Eintrag per ID updaten",
-    "difficulty": "Mittel",
     "title": "Array.map() + Spread – Eintrag aktualisieren",
     "description": "Erstelle eine Produktliste mit useState. Implementiere eine updateProduct-Funktion, die ein Produkt anhand seiner ID aktualisiert, ohne den State zu mutieren. Nutze .map() und den Spread-Operator (...), um eine neue Kopie des Arrays zu erstellen, bei der nur der eine Eintrag geaendert wird.",
     "hint": "setProducts(prev => prev.map(p => p.id === id ? { ...p, ...changes } : p)). Denk daran: State NIE direkt mutieren – immer eine neue Kopie zurueckgeben.",
@@ -21,9 +17,7 @@
   },
   {
     "id": 3,
-    "group": "Array-Operationen",
     "name": "Array-Eintrag per ID loeschen",
-    "difficulty": "Leicht",
     "title": "Array.filter() – Eintrag entfernen",
     "description": "Erstelle eine Todo-Liste mit Loeschfunktion. Implementiere eine deleteTodo-Funktion mit Array.filter(), die einen Eintrag anhand seiner ID entfernt. filter() erstellt ein neues Array – das ist genau das, was wir fuer unveraenderlichen State brauchen.",
     "hint": "setTodos(prev => prev.filter(todo => todo.id !== id)). filter() behaelt alle Elemente, fuer die die Bedingung true ist – also alle AUSSER dem mit der zu loeschenden ID.",
@@ -31,9 +25,7 @@
   },
   {
     "id": 4,
-    "group": "Sicherer Datenzugriff",
     "name": "Optional Chaining",
-    "difficulty": "Leicht",
     "title": "Optional Chaining ?. – Kein Crash bei undefined",
     "description": "Erstelle eine UserCard-Komponente, die Daten eines Benutzers anzeigt. Die Daten kommen asynchron und koennen unvollstaendig sein. Nutze Optional Chaining (?.), um sicher auf verschachtelte Eigenschaften wie user.address.city zuzugreifen, ohne dass ein TypeError geworfen wird. Zeige 'Keine Angabe' an, wenn Daten fehlen.",
     "hint": "user?.address?.city greift sicher zu. Kombiniere mit ?? fuer Fallback-Werte: user?.address?.city ?? 'Keine Angabe'. Funktioniert auch fuer Funktionen: onClose?.().",
@@ -41,9 +33,7 @@
   },
   {
     "id": 5,
-    "group": "Sicherer Datenzugriff",
     "name": "Nullish Coalescing",
-    "difficulty": "Leicht",
     "title": "?? vs || – Nullish Coalescing verstehen",
     "description": "Erstelle eine Lautstaerkeeinstellung-Komponente. Der Nutzer kann die Lautstaerke auf 0 setzen (stumm). Zeige, warum ?? besser geeignet ist als ||: Bei || wuerde 0 als falsy gelten und der Fallback greifen. Mit ?? wird 0 korrekt als gueltiger Wert erkannt. Zeige beide Varianten zum Vergleich.",
     "hint": "Der Unterschied: || reagiert auf ALLE falsy-Werte (0, '', false, null, undefined). ?? reagiert NUR auf null und undefined. Fuer numerische Werte wie 0 ist ?? fast immer richtig.",
@@ -51,9 +41,7 @@
   },
   {
     "id": 6,
-    "group": "Sicherer Datenzugriff",
     "name": "Destructuring",
-    "difficulty": "Leicht",
     "title": "Object & Array Destructuring",
     "description": "Schreibe eine Komponente, die Destructuring fuer Props und State nutzt. Ziehe mehrere Properties aus einem User-Objekt mit Object Destructuring (inkl. Umbenennung und Default-Wert). Nutze Array Destructuring fuer useState. Zeige die extrahierten Werte im UI an.",
     "hint": "Object: const { name, role = 'user' } = props.user; Mit Umbenennung: const { name: userName } = user;. Array: const [first, second] = colors;. useState nutzt genau dieses Pattern.",
@@ -61,9 +49,7 @@
   },
   {
     "id": 7,
-    "group": "Rendering-Muster",
     "name": "Conditional Rendering",
-    "difficulty": "Leicht",
     "title": "Bedingtes Rendering – &&, Ternaer, Early Return",
     "description": "Baue eine Komponente, die drei verschiedene Conditional-Rendering-Patterns demonstriert: 1) && fuer 'zeige wenn existiert', 2) Ternaer fuer 'entweder/oder', 3) Early Return fuer 'erst Fehler/Ladezustaende abfangen'. Zeige eine UserPage, die Lade-, Fehler- und Normalzustand korrekt darstellt.",
     "hint": "Pattern 1: {isLoggedIn && <LogoutButton />}. Pattern 2: {isLoading ? <Spinner /> : <Content />}. Pattern 3 (Early Return): if (isLoading) return <Spinner />; – danach ist isLoading garantiert false.",
@@ -71,9 +57,7 @@
   },
   {
     "id": 8,
-    "group": "Rendering-Muster",
     "name": "key-Prop in Listen",
-    "difficulty": "Leicht",
     "title": "key-Prop korrekt verwenden",
     "description": "Erstelle eine Liste von Eintraegen, die sortiert und geloescht werden koennen. Zeige, warum der Array-Index als key problematisch ist: Wenn du Eintraege loeschst oder sortierst, kann React die falschen Elemente aktualisieren. Verwende stattdessen eine eindeutige ID als key. Implementiere Sortier- und Loeschfunktionen.",
     "hint": "Immer eine stabile, eindeutige ID als key verwenden: key={item.id}. Der Index key={index} fuehrt zu Bugs beim Sortieren, Loeschen oder Neu-Anordnen von Elementen.",
@@ -81,9 +65,7 @@
   },
   {
     "id": 9,
-    "group": "API & State",
     "name": "API-Daten laden",
-    "difficulty": "Mittel",
     "title": "Daten von einer API laden & anzeigen",
     "description": "Erstelle eine Komponente, die Produkte von einer API laedt. Implementiere das Standard-Muster: Ladezustand (Spinner), Fehlerzustand (Fehlermeldung), Erfolgszustand (Liste). Nutze async/await in useEffect. Behandle den Fall, dass die API nicht erreichbar ist (try/catch). Zeige im finally-Block an, dass der Ladevorgang beendet ist.",
     "hint": "Drei State-Variablen: data, isLoading, error. useEffect mit [] laedt beim Mounten. Pattern: try { fetch } catch { setError } finally { setIsLoading(false) }. Pruefe res.ok bevor du res.json() aufrufst.",
@@ -91,9 +73,7 @@
   },
   {
     "id": 10,
-    "group": "API & State",
     "name": "Formular & API sync",
-    "difficulty": "Schwer",
     "title": "Formular → API → UI synchronisieren",
     "description": "Baue ein Bearbeitungsformular, das Daten an eine API sendet und danach die UI aktualisiert. Implementiere controlled inputs (value + onChange), einen Speichern-Button mit Ladezustand, und benachrichtige die Parent-Komponente nach erfolgreichem Speichern. Behandle auch den Fehlerfall.",
     "hint": "Controlled Input: value={name} onChange={e => setName(e.target.value)}. Button disablen waehrend isSaving. Parent via onSuccess-Callback informieren. try/catch/finally fuer den API-Call nutzen.",

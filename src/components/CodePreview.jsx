@@ -1,100 +1,101 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
-import { Eye, EyeSlash, Warning } from './Icons'
+import { useState, useEffect, useRef, useCallback } from "react";
+import { Eye, EyeSlash, Warning, RotateCcw } from "./Icons";
 
 // @babel/standalone wird dynamisch geladen (spart ~4MB im initialen Bundle)
-let babelPromise = null
+let babelPromise = null;
 function getBabel() {
   if (!babelPromise) {
-    babelPromise = import('@babel/standalone').then(m => m.transform)
+    babelPromise = import("@babel/standalone").then((m) => m.transform);
   }
-  return babelPromise
+  return babelPromise;
 }
 
-const PREVIEW_TIMEOUT = 3000 // max render time before showing error
+const PREVIEW_TIMEOUT = 3000; // max render time before showing error
 
 export default function CodePreview({ code, task }) {
-  const [showPreview, setShowPreview] = useState(false)
-  const [previewContent, setPreviewContent] = useState('')
-  const [error, setError] = useState(null)
-  const [isTranspiling, setIsTranspiling] = useState(false)
-  const iframeRef = useRef(null)
-  const timerRef = useRef(null)
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewContent, setPreviewContent] = useState("");
+  const [error, setError] = useState(null);
+  const [isTranspiling, setIsTranspiling] = useState(false);
+  const iframeRef = useRef(null);
+  const timerRef = useRef(null);
 
   // Reset when task changes
   useEffect(() => {
-    setError(null)
-    setPreviewContent('')
-    setShowPreview(false)
-  }, [task?.id])
+    setError(null);
+    setPreviewContent("");
+    setShowPreview(false);
+  }, [task?.id]);
 
   const handleToggle = useCallback(() => {
     if (showPreview) {
-      setShowPreview(false)
-      return
+      setShowPreview(false);
+      return;
     }
-    generatePreview()
-  }, [showPreview, code, task])
+    generatePreview();
+  }, [showPreview, code, task]);
 
   const generatePreview = useCallback(async () => {
     if (!code || !code.trim()) {
-      setError('Kein Code zum Anzeigen.')
-      setShowPreview(true)
-      return
+      setError("Kein Code zum Anzeigen.");
+      setShowPreview(true);
+      return;
     }
 
-    setIsTranspiling(true)
-    setError(null)
+    setIsTranspiling(true);
+    setError(null);
 
     try {
       // Dynamisch @babel/standalone laden
-      const transform = await getBabel()
+      const transform = await getBabel();
 
       // Try to transpile the JSX code
-      let transpiled
+      let transpiled;
       try {
         transpiled = transform(code, {
-          presets: ['react'],
-          filename: 'UserCode.jsx',
+          presets: ["react"],
+          filename: "UserCode.jsx",
           retainLines: false,
           compact: true,
-        }).code
+        }).code;
       } catch (babelError) {
-        setError(`JSX-Transpilierungsfehler: ${babelError.message}`)
-        setIsTranspiling(false)
-        setShowPreview(true)
-        return
+        setError(`JSX-Transpilierungsfehler: ${babelError.message}`);
+        setIsTranspiling(false);
+        setShowPreview(true);
+        return;
       }
 
       // Build the iframe HTML with the transpiled code
-      const html = buildPreviewHtml(transpiled)
-      setPreviewContent(html)
-      setIsTranspiling(false)
-      setShowPreview(true)
+      const html = buildPreviewHtml(transpiled);
+      setPreviewContent(html);
+      setIsTranspiling(false);
+      setShowPreview(true);
     } catch (err) {
-      setError(`Fehler: ${err.message}`)
-      setIsTranspiling(false)
-      setShowPreview(true)
+      setError(`Fehler: ${err.message}`);
+      setIsTranspiling(false);
+      setShowPreview(true);
     }
-  }, [code, task])
+  }, [code, task]);
 
   // Handle iframe errors
   const handleIframeLoad = useCallback(() => {
-    const iframe = iframeRef.current
-    if (!iframe) return
+    const iframe = iframeRef.current;
+    if (!iframe) return;
 
     try {
       // Check if the iframe content has errors
-      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document
+      const iframeDoc =
+        iframe.contentDocument || iframe.contentWindow?.document;
       if (iframeDoc) {
-        const errorEl = iframeDoc.getElementById('preview-error')
+        const errorEl = iframeDoc.getElementById("preview-error");
         if (errorEl) {
-          setError(errorEl.textContent)
+          setError(errorEl.textContent);
         }
       }
     } catch {
       // Cross-origin errors are expected for sandboxed iframes
     }
-  }, [])
+  }, []);
 
   return (
     <div className="h-full flex flex-col">
@@ -105,13 +106,13 @@ export default function CodePreview({ code, task }) {
             onClick={handleToggle}
             className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs transition-all ${
               showPreview
-                ? 'bg-accent/20 text-accent'
-                : 'text-t3 hover:text-text hover:bg-s3'
+                ? "bg-accent/20 text-accent"
+                : "text-t3 hover:text-text hover:bg-s3"
             }`}
-            title={showPreview ? 'Code-Ansicht' : 'Live-Vorschau'}
+            title={showPreview ? "Code-Ansicht" : "Live-Vorschau"}
           >
             {showPreview ? <EyeSlash size={12} /> : <Eye size={12} />}
-            {showPreview ? 'Code' : 'Preview'}
+            {showPreview ? "Code" : "Preview"}
           </button>
         </div>
         {showPreview && (
@@ -120,7 +121,9 @@ export default function CodePreview({ code, task }) {
             className="text-xs px-2 py-1 rounded text-t3 hover:text-text hover:bg-s3 transition-all"
             title="Vorschau neu laden"
           >
-            ↻ Neu laden
+            <span className="inline-flex items-center gap-1">
+              <RotateCcw size={12} /> Neu laden
+            </span>
           </button>
         )}
       </div>
@@ -131,25 +134,51 @@ export default function CodePreview({ code, task }) {
           <div className="h-full flex items-center justify-center text-t2">
             <div className="text-center">
               <Eye size={32} className="mx-auto mb-2 opacity-30" />
-              <p className="text-sm">Klicke auf <strong className="text-accent">Preview</strong> für eine Live-Vorschau</p>
-              <p className="text-xs text-t3 mt-1">Dein Code wird in einer sicheren Sandbox ausgeführt</p>
+              <p className="text-sm">
+                Klicke auf <strong className="text-accent">Preview</strong> für
+                eine Live-Vorschau
+              </p>
+              <p className="text-xs text-t3 mt-1">
+                Dein Code wird in einer sicheren Sandbox ausgeführt
+              </p>
             </div>
           </div>
         ) : isTranspiling ? (
           <div className="h-full flex items-center justify-center">
-            <svg className="animate-spin w-6 h-6 text-accent" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            <svg
+              className="animate-spin w-6 h-6 text-accent"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+                fill="none"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+              />
             </svg>
           </div>
         ) : error ? (
           <div className="h-full flex items-center justify-center p-6">
             <div className="max-w-md">
               <div className="flex items-start gap-2 p-4 rounded-lg bg-red-900/10 border border-red-900/20">
-                <span className="text-red shrink-0 mt-0.5"><Warning size={18} /></span>
+                <span className="text-red shrink-0 mt-0.5">
+                  <Warning size={18} />
+                </span>
                 <div>
-                  <p className="text-sm font-semibold text-red mb-1">Preview-Fehler</p>
-                  <pre className="text-xs text-red/80 whitespace-pre-wrap font-mono">{error}</pre>
+                  <p className="text-sm font-semibold text-red mb-1">
+                    Preview-Fehler
+                  </p>
+                  <pre className="text-xs text-red/80 whitespace-pre-wrap font-mono">
+                    {error}
+                  </pre>
                 </div>
               </div>
             </div>
@@ -162,12 +191,12 @@ export default function CodePreview({ code, task }) {
             title="Code Preview"
             sandbox="allow-scripts"
             className="w-full h-full border-0 bg-white"
-            style={{ backgroundColor: 'white' }}
+            style={{ backgroundColor: "white" }}
           />
         )}
       </div>
     </div>
-  )
+  );
 }
 
 /* ── Build a self-contained HTML page for the iframe ── */
@@ -177,61 +206,53 @@ function buildPreviewHtml(transpiledCode) {
   // We need to detect if the user code defines a component or just renders something
   const renderScript = `
 <script>
-(function() {
-  try {
-    // Execute the user's transpiled code
-    ${transpiledCode}
-    
-    // Try to find a component function and render it
-    var rootEl = document.getElementById('root');
-    var AppComponent = null;
-    
-    // Look for component definitions in the global scope
-    // Nutze try/catch für window-Zugriff, da localStorage/IndexedDB in Sandbox ohne allow-same-origin verboten sind
-    var globalNames = [];
+try {
+  // Execute the user's transpiled code (runs in global scope, so function declarations become window properties)
+  ${transpiledCode}
+  
+  // Try to find a component function and render it
+  var rootEl = document.getElementById('root');
+  
+  // Typische Komponenten-Namen aus den Aufgaben
+  var commonNames = ['Counter', 'UserList', 'ThemeButton', 'FocusForm', 'TodoApp', 'TodoList', 'PerformanceDemo', 'ProductCard', 'ProductGrid', 'ProductFinder', 'ProductList', 'UserCard', 'UserProfile', 'Dashboard', 'VolumeControl', 'SortableList', 'EditProductForm', 'UserPage'];
+  var componentToRender = null;
+  for (var i = 0; i < commonNames.length; i++) {
+    if (typeof window[commonNames[i]] === 'function') {
+      componentToRender = window[commonNames[i]];
+      break;
+    }
+  }
+  
+  // Fallback: try to find any uppercase function on window
+  if (!componentToRender) {
     try {
-      globalNames = Object.keys(window).filter(function(key) {
-        try {
-          return typeof window[key] === 'function' 
+      var globalKeys = Object.keys(window);
+      for (var j = 0; j < globalKeys.length; j++) {
+        var key = globalKeys[j];
+        if (typeof window[key] === 'function' 
             && key[0] === key[0].toUpperCase() 
             && key !== 'React' 
-            && key !== 'ReactDOM';
-        } catch (e) {
-          return false;
+            && key !== 'ReactDOM'
+            && !window[key].prototype?.isReactComponent) {
+          componentToRender = window[key];
+          break;
         }
-      });
-    } catch (e) {
-      // Fallback: ignore window enumeration errors
-    }
-    
-    // If there's a default export or a function component, try to render it
-    var componentToRender = null;
-    
-    // Typische Komponenten-Namen aus den Aufgaben
-    var commonNames = ['Counter', 'UserList', 'ThemeButton', 'FocusForm', 'TodoApp', 'TodoList', 'PerformanceDemo', 'ProductCard', 'ProductGrid', 'ProductFinder', 'ProductList', 'UserCard', 'UserProfile', 'Dashboard', 'VolumeControl', 'SortableList', 'EditProductForm', 'UserPage'];
-    for (var i = 0; i < commonNames.length; i++) {
-      if (typeof window[commonNames[i]] === 'function') {
-        componentToRender = window[commonNames[i]];
-        break;
       }
+    } catch (e) {
+      // ignore window enumeration errors
     }
-    
-    // Fallback: use the first found component
-    if (!componentToRender && globalNames.length > 0) {
-      componentToRender = window[globalNames[0]];
-    }
-    
-    if (componentToRender) {
-      var root = ReactDOM.createRoot(rootEl);
-      root.render(React.createElement(componentToRender));
-    } else {
-      rootEl.innerHTML = '<div style="padding:20px;font-family:sans-serif;color:#666;text-align:center;"><p style="font-size:14px;">✅ Code ausgef&uuml;hrt</p><p style="font-size:12px;margin-top:8px;">Keine React-Komponente gefunden. Definiere eine Funktion wie <code style="background:#f0f0f0;padding:2px 6px;border-radius:3px;font-size:12px;">ProductList()</code>.</p></div>';
-    }
-  } catch (e) {
-    document.getElementById('root').innerHTML = '<div id="preview-error" style="padding:16px;font-family:monospace;font-size:13px;color:#c00;background:#fff0f0;border-bottom:2px solid #fcc;"><strong>Runtime-Fehler:</strong><br>' + e.message + '<br><br><pre style="font-size:11px;color:#666;white-space:pre-wrap;margin:0;">' + e.stack + '</pre></div>';
   }
-})();
-<\/script>`
+  
+  if (componentToRender) {
+    var root = ReactDOM.createRoot(rootEl);
+    root.render(React.createElement(componentToRender));
+  } else {
+    rootEl.innerHTML = '<div style="padding:20px;font-family:sans-serif;color:#666;text-align:center;"><p style="font-size:14px;">Code ausgef&uuml;hrt</p><p style="font-size:12px;margin-top:8px;">Keine React-Komponente gefunden. Definiere eine Funktion wie <code style="background:#f0f0f0;padding:2px 6px;border-radius:3px;font-size:12px;">ProductList()</code>.</p></div>';
+  }
+} catch (e) {
+  document.getElementById('root').innerHTML = '<div id="preview-error" style="padding:16px;font-family:monospace;font-size:13px;color:#c00;background:#fff0f0;border-bottom:2px solid #fcc;"><strong>Runtime-Fehler:</strong><br>' + e.message + '<br><br><pre style="font-size:11px;color:#666;white-space:pre-wrap;margin:0;">' + e.stack + '</pre></div>';
+}
+<\/script>`;
 
   return `<!DOCTYPE html>
 <html>
@@ -265,5 +286,5 @@ function buildPreviewHtml(transpiledCode) {
   <div id="root"></div>
   ${renderScript}
 </body>
-</html>`
+</html>`;
 }

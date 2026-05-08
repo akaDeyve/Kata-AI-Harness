@@ -12,8 +12,8 @@ import Toast from './components/Toast'
 import ConfigSettingsModal from './components/ConfigSettingsModal'
 import { DEFAULT_PROVIDER, loadTheme, applyTheme } from './modules'
 import { callAI, safeJsonParse } from './lib/api'
-import { getModuleState, getEnabledProviders } from './modules/registry'
-import tasksData from './modules/taskdata/tasks.json'
+import { getModuleState, getEnabledProviders, getEnabledDatasets } from './modules/registry'
+import { getTasksForDatasets } from './modules/taskdata'
 
 const STORAGE_PREFIX = 'code_trainer_code_'
 const STORAGE_TASKS_KEY = 'code_trainer_tasks'
@@ -25,18 +25,23 @@ function saveCodeToStorage(taskId, code) {
   try { localStorage.setItem(`${STORAGE_PREFIX}${taskId}`, code) } catch { }
 }
 
+function getInitialTasks() {
+  const enabled = getEnabledDatasets()
+  const data = getTasksForDatasets(enabled)
+  const saved = localStorage.getItem('code_trainer_tasks')
+  if (saved) {
+    const parsed = safeJsonParse(saved)
+    if (Array.isArray(parsed)) return parsed
+  }
+  return data
+}
+
 export default function App() {
-  const [tasks, setTasks] = useState(() => {
-    const saved = localStorage.getItem('code_trainer_tasks')
-    if (saved) {
-      const parsed = safeJsonParse(saved)
-      if (Array.isArray(parsed)) return parsed
-    }
-    return tasksData
-  })
-  const [selectedTaskId, setSelectedTaskId] = useState(() => tasksData[0]?.id || null)
+  const [tasks, setTasks] = useState(getInitialTasks)
+  const initialTaskId = tasks[0]?.id || null
+  const [selectedTaskId, setSelectedTaskId] = useState(initialTaskId)
   const [code, setCode] = useState(() => {
-    const firstTask = tasksData[0]
+    const firstTask = tasks[0]
     if (!firstTask) return ''
     const saved = loadSavedCode(firstTask.id)
     return saved ?? (firstTask.starter || '')
@@ -171,12 +176,24 @@ Antworte NUR auf Deutsch.
     showToast('Neue Aufgabe wurde hinzugefügt!', 'success')
   }, [showToast])
 
-  /* ── Progress data ── */
-  const groupProgress = (tasks || []).reduce((acc, t) => {
-    if (!acc[t.group]) acc[t.group] = { total: 0, done: 0 }
-    acc[t.group].total++
-    return acc
-  }, {})
+  const handleSplitResize = useCallback((e) => {
+    e.preventDefault()
+    const parent = splitViewRef.current
+    if (!parent) return
+    const rect = parent.getBoundingClientRect()
+    const onMove = (ev) => {
+      const pct = ((ev.clientX - rect.left) / rect.width) * 100
+      setPreviewSplit(Math.max(20, Math.min(80, pct)))
+    }
+    const onUp = () => {
+      document.removeEventListener('mousemove', onMove)
+      document.removeEventListener('mouseup', onUp)
+      document.body.style.cursor = ''
+    }
+    document.body.style.cursor = 'col-resize'
+    document.addEventListener('mousemove', onMove)
+    document.addEventListener('mouseup', onUp)
+  }, [])
 
   return (
     <div className="h-full flex bg-bg overflow-hidden">
@@ -188,21 +205,15 @@ Antworte NUR auf Deutsch.
         onToggleCollapse={() => setSidebarCollapsed(v => !v)}
         width={sidebarWidth}
         onWidthChange={setSidebarWidth}
+        onApiClick={() => setShowApiModal(true)}
+        onSettingsClick={() => setShowSettingsModal(true)}
+        hasApiKey={!!apiConfig.key || apiConfig.apiType === 'opencode'}
+        onGenerateTask={moduleState['feature:generate'] !== false ? () => setShowGenerateModal(true) : undefined}
+        onReset={handleResetCode}
       />
 
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-        <TopBar
-          task={selectedTask}
-          onApiClick={() => setShowApiModal(true)}
-          hasApiKey={!!apiConfig.key || apiConfig.apiType === 'opencode'}
-          onReset={handleResetCode}
-          onGetFeedback={handleGetFeedback}
-          onGetCorrection={handleGetCorrection}
-          onGenerateTask={moduleState['feature:generate'] !== false ? () => setShowGenerateModal(true) : undefined}
-          onSettingsClick={() => setShowSettingsModal(true)}
-          isLoading={isLoading}
-          isCorrectionLoading={isCorrectionLoading}
-          showPreview={moduleState['feature:preview'] !== false}
+        <TopBar task={selectedTask}
         />
 
         <div className="flex-1 flex overflow-hidden">
@@ -216,24 +227,7 @@ Antworte NUR auf Deutsch.
                   </div>
                   <div
                     className="w-1 cursor-col-resize hover:bg-accent/40 active:bg-accent/60 bg-border transition-colors shrink-0 relative z-10"
-                    onMouseDown={(e) => {
-                      e.preventDefault()
-                      const parent = splitViewRef.current
-                      if (!parent) return
-                      const rect = parent.getBoundingClientRect()
-                      const onMove = (ev) => {
-                        const pct = ((ev.clientX - rect.left) / rect.width) * 100
-                        setPreviewSplit(Math.max(20, Math.min(80, pct)))
-                      }
-                      const onUp = () => {
-                        document.removeEventListener('mousemove', onMove)
-                        document.removeEventListener('mouseup', onUp)
-                        document.body.style.cursor = ''
-                      }
-                      document.body.style.cursor = 'col-resize'
-                      document.addEventListener('mousemove', onMove)
-                      document.addEventListener('mouseup', onUp)
-                    }}
+                    onMouseDown={handleSplitResize}
                   />
                   <div className="overflow-hidden" style={{ width: `${previewSplit}%` }}>
                     <CodePreview code={code} task={selectedTask} />
@@ -256,7 +250,6 @@ Antworte NUR auf Deutsch.
             onGetFeedback={handleGetFeedback}
             onGetCorrection={handleGetCorrection}
             showToast={showToast}
-            groupProgress={groupProgress}
             collapsed={rightPanelCollapsed}
             onToggleCollapse={() => setRightPanelCollapsed(v => !v)}
             width={rightPanelWidth}

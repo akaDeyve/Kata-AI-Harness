@@ -52,8 +52,16 @@ export async function callGemini({ key, baseUrl, model }, system, user) {
   })
 
   if (!r.ok) {
-    const errBody = await r.json().catch(() => ({}))
-    const errMsg = errBody?.error?.message || errBody?.error?.status || r.statusText
+    const text = await r.text().catch(() => '')
+    let errMsg = r.statusText
+    try {
+      const errBody = JSON.parse(text)
+      errMsg = errBody?.error?.message || errBody?.error?.status || errMsg
+      // Log full error for debugging
+      console.error('Gemini API error details:', JSON.stringify(errBody, null, 2))
+    } catch {
+      errMsg = text || errMsg
+    }
     throw new Error(`Gemini API-Fehler: ${r.status} – ${errMsg}`)
   }
 

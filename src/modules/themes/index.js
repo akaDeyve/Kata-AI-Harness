@@ -1,12 +1,8 @@
-/* ── Theme Registry ── */
+/* ── Theme Registry – Light-only ── */
 import { LIGHT_THEME } from './light'
-import { DARK_THEME } from './dark'
-import { ROSE_THEME } from './rose'
 
 export const THEME_REGISTRY = {
   light: LIGHT_THEME,
-  dark: DARK_THEME,
-  rose: ROSE_THEME,
 }
 
 export const THEMES = Object.values(THEME_REGISTRY)
@@ -23,9 +19,6 @@ export function applyTheme(themeId) {
     root.style.setProperty(key, value)
   }
   root.setAttribute('data-theme', themeId)
-  try {
-    localStorage.setItem('code_trainer_theme', themeId)
-  } catch { /* ignore */ }
 }
 
 /**

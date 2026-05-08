@@ -1,91 +1,127 @@
-import { Brackets, Layout, Link, GitMerge } from './Icons'
+import { Key, Settings, Check, CaretRight, CaretLeft, RotateCcw, Sparkle } from "./Icons";
 
-const GROUP_ICONS = {
-  'React Hooks': <Link size={15} />,
-  'Props & Komponenten': <GitMerge size={15} />,
-  'CSS & Styling': <Layout size={15} />,
-  'Array-Operationen': <Brackets size={15} />,
-}
-
-const dotColors = {
-  'Leicht': 'bg-[#a8e6cf]',
-  'Mittel': 'bg-[#ffd3b6]',
-  'Schwer': 'bg-[#ffaaa5]',
-}
-
-const pillClasses = {
-  'Leicht': 'bg-[#a8e6cf18] text-[#a8e6cf]',
-  'Mittel': 'bg-[#ffd3b618] text-[#ffd3b6]',
-  'Schwer': 'bg-[#ffaaa518] text-[#ffaaa5]',
-}
-
-export default function Sidebar({ tasks, selectedTaskId, onSelectTask, collapsed, onToggleCollapse, width, onWidthChange }) {
-  const groups = {}
-  tasks.forEach(t => { if (!groups[t.group]) groups[t.group] = []; groups[t.group].push(t) })
-
+export default function Sidebar({
+  tasks,
+  selectedTaskId,
+  onSelectTask,
+  collapsed,
+  onToggleCollapse,
+  width,
+  onWidthChange,
+  onApiClick,
+  onSettingsClick,
+  hasApiKey,
+  onGenerateTask,
+  onReset,
+}) {
   const handleResize = (e) => {
-    e.preventDefault()
-    const startX = e.clientX
-    const startWidth = width
+    e.preventDefault();
+    const startX = e.clientX;
+    const startWidth = width;
     const handleMouseMove = (ev) => {
-      const newWidth = Math.max(160, Math.min(500, startWidth + (ev.clientX - startX)))
-      onWidthChange(newWidth)
-    }
+      const newWidth = Math.max(
+        180,
+        Math.min(400, startWidth + (ev.clientX - startX)),
+      );
+      onWidthChange(newWidth);
+    };
     const handleMouseUp = () => {
-      document.removeEventListener('mousemove', handleMouseMove)
-      document.removeEventListener('mouseup', handleMouseUp)
-      document.body.style.cursor = ''
-    }
-    document.body.style.cursor = 'col-resize'
-    document.addEventListener('mousemove', handleMouseMove)
-    document.addEventListener('mouseup', handleMouseUp)
-  }
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "";
+    };
+    document.body.style.cursor = "col-resize";
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+  };
 
   return (
-    <div className="relative flex flex-col overflow-hidden select-none shrink-0 border-r border-borderc bg-s1" style={{ width: collapsed ? 48 : width, minWidth: collapsed ? 48 : 160 }}>
+    <div
+      className="relative flex flex-col overflow-hidden select-none shrink-0 border-r border-borderc bg-bg"
+      style={{ width: collapsed ? 44 : width, minWidth: collapsed ? 44 : 220 }}
+    >
       {/* Header */}
-      <div className="flex items-center justify-between h-[52px] px-3.5 border-b border-borderc shrink-0">
+      <div className="flex items-center justify-between h-[52px] px-4 border-b border-borderc shrink-0">
         {!collapsed && (
-          <div className="flex items-center gap-2 overflow-hidden">
-            <div className="w-7 h-7 bg-accent rounded-[6px] flex items-center justify-center flex-shrink-0 text-sm font-bold text-white tracking-tight">CL</div>
-            <span className="text-base font-semibold text-text tracking-wide whitespace-nowrap">CodeLab</span>
-          </div>
+          <span className="text-xs font-semibold tracking-[0.18em] uppercase text-t3">
+            Aufgaben
+          </span>
         )}
-        <button onClick={onToggleCollapse} className={`w-[26px] h-[26px] rounded-[6px] border border-border2 bg-transparent text-t2 flex items-center justify-center flex-shrink-0 hover:bg-s3 hover:text-text ${collapsed ? 'mx-auto' : ''}`} title="Sidebar einklappen">
-          {collapsed ? '›' : '‹'}
+        <button
+          onClick={onToggleCollapse}
+          className={`w-6 h-6 rounded text-t3 flex items-center justify-center flex-shrink-0 hover:text-text hover:bg-s2 transition-colors ${collapsed ? "mx-auto" : ""}`}
+          title="Sidebar einklappen"
+        >
+          {collapsed ? <CaretRight size={14} /> : <CaretLeft size={14} />}
         </button>
       </div>
 
       {/* Body */}
       {!collapsed && (
         <div className="flex-1 overflow-y-auto overflow-x-hidden py-2">
-          {Object.entries(groups).map(([group, gTasks]) => (
-            <div key={group} className="mb-2">
-              <div className="text-xs font-semibold tracking-[0.12em] uppercase text-t3 px-3.5 pt-4 pb-2">{group}</div>
-              {gTasks.map(task => (
-                <button key={task.id} onClick={() => onSelectTask(task.id)}
-                  className={`flex items-center gap-3 w-full px-3.5 py-2 text-left cursor-pointer transition-colors relative whitespace-nowrap ${
-                    selectedTaskId === task.id ? 'bg-accent-dim text-text' : 'text-t2 hover:bg-s2'
-                  }`}>
-                  {selectedTaskId === task.id && <span className="absolute left-0 top-0 bottom-0 w-0.5 bg-accent rounded-r-sm" />}
-                  <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dotColors[task.difficulty] || 'bg-t3'}`} />
-                  <span className="text-sm truncate flex-1">{task.name}</span>
-                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${pillClasses[task.difficulty] || ''}`}>{task.difficulty === 'Leicht' ? 'Easy' : task.difficulty === 'Mittel' ? 'Mid' : 'Hard'}</span>
-                </button>
-              ))}
-            </div>
+          {tasks.map((task) => (
+            <button
+              key={task.id}
+              onClick={() => onSelectTask(task.id)}
+              className={`flex items-center gap-2.5 w-full px-4 py-[5px] text-left cursor-pointer transition-colors relative whitespace-nowrap ${
+                selectedTaskId === task.id
+                  ? "text-text"
+                  : "text-t2 hover:text-text"
+              }`}
+            >
+              <span
+                className={`w-1 h-1 rounded-full flex-shrink-0 ${selectedTaskId === task.id ? "bg-text" : "bg-t3"}`}
+              />
+              <span className="text-sm truncate flex-1 leading-snug">
+                {task.name}
+              </span>
+            </button>
           ))}
         </div>
       )}
 
-      {/* Collapsed icon rail */}
-      {collapsed && (
-        <div className="flex flex-col items-center gap-0.5 py-2.5 flex-1 overflow-hidden">
-          {Object.keys(groups).map((group, i) => (
-            <div key={group} className="w-8 h-8 rounded-md flex items-center justify-center text-t3 cursor-pointer hover:bg-s3 transition-colors" title={group}>
-              {GROUP_ICONS[group] || <span className="text-[10px] font-bold">{group[0]}</span>}
-            </div>
-          ))}
+      {/* Footer: Actions + API + Settings */}
+      {!collapsed && (
+        <div className="shrink-0 border-t border-borderc px-4 py-2 space-y-1">
+          <button
+            onClick={onReset}
+            className="flex items-center gap-2.5 w-full px-0 py-[5px] text-left cursor-pointer text-text hover:text-text transition-colors"
+          >
+            <span className="text-text flex-shrink-0">
+              <RotateCcw size={14} />
+            </span>
+            <span className="text-sm">Zurücksetzen</span>
+          </button>
+          {onGenerateTask && (
+            <button
+              onClick={onGenerateTask}
+              className="flex items-center gap-2.5 w-full px-0 py-[5px] text-left cursor-pointer text-text hover:text-text transition-colors"
+            >
+              <span className="text-text flex-shrink-0">
+                <Sparkle size={14} />
+              </span>
+              <span className="text-sm">Generieren</span>
+            </button>
+          )}
+          <div className="h-px bg-border my-1" />
+          <button
+            onClick={onApiClick}
+            className="flex items-center gap-2.5 w-full px-0 py-[5px] text-left cursor-pointer text-text hover:text-text transition-colors"
+          >
+            <span className={`flex-shrink-0 ${hasApiKey ? "text-green" : "text-text"}`}>
+              {hasApiKey ? <Check size={14} /> : <Key size={14} />}
+            </span>
+            <span className="text-sm">API-Schlüssel</span>
+          </button>
+          <button
+            onClick={onSettingsClick}
+            className="flex items-center gap-2.5 w-full px-0 py-[5px] text-left cursor-pointer text-text hover:text-text transition-colors"
+          >
+            <span className="text-text flex-shrink-0">
+              <Settings size={14} />
+            </span>
+            <span className="text-sm">Einstellungen</span>
+          </button>
         </div>
       )}
 
@@ -97,5 +133,5 @@ export default function Sidebar({ tasks, selectedTaskId, onSelectTask, collapsed
         />
       )}
     </div>
-  )
+  );
 }

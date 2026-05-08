@@ -1,9 +1,11 @@
+import { FileTs } from '../../components/Icons'
+
 /* ── TypeScript Language Module ── */
 
 export const TYPESCRIPT_CONFIG = {
   id: 'typescript',
   name: 'TypeScript',
-  icon: '🔷',
+  icon: FileTs,
   extensions: ['.ts', '.tsx'],
   defaultStarter: `// TypeScript Aufgabe
 // Dein Code hier

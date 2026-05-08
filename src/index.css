@@ -2,62 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Default (Light) – Schwarz/Weiß, minimal ── */
+/* ── Default (Light) – Clean, minimal ── */
 :root {
   --bg: #ffffff;
-  --s1: #fafafa;
-  --s2: #f5f5f5;
-  --s3: #e5e5e5;
+  --s1: #f7f7f7;
+  --s2: #f0f0f0;
+  --s3: #e4e4e4;
   --border: #d4d4d4;
-  --border2: #a3a3a3;
-  --accent: #000000;
-  --accent-dim: #0000000a;
-  --green: #000000;
-  --green-dim: #0000000a;
-  --yellow: #000000;
-  --red: #000000;
-  --text: #000000;
-  --t2: #525252;
-  --t3: #a3a3a3;
-  --radius: 4px;
-}
-
-/* ── Dark – Schwarz/Weiß, minimal ── */
-[data-theme="dark"] {
-  --bg: #000000;
-  --s1: #0a0a0a;
-  --s2: #141414;
-  --s3: #1f1f1f;
-  --border: #2a2a2a;
-  --border2: #333333;
-  --accent: #ffffff;
-  --accent-dim: #ffffff0a;
-  --green: #ffffff;
-  --green-dim: #ffffff0a;
-  --yellow: #ffffff;
-  --red: #ffffff;
-  --text: #ffffff;
-  --t2: #a3a3a3;
-  --t3: #666666;
-}
-
-/* ── Rose ── */
-[data-theme="rose"] {
-  --bg: #fff1f2;
-  --s1: #ffe4e6;
-  --s2: #fecdd3;
-  --s3: #fda4af;
-  --border: #fda4af;
-  --border2: #f9a8d9;
-  --accent: #e11d48;
-  --accent-dim: #e11d4818;
+  --border2: #b0b0b0;
+  --accent: #18181b;
+  --accent-dim: #18181b14;
   --green: #16a34a;
   --green-dim: #16a34a18;
   --yellow: #ca8a04;
+  --yellow-dim: #ca8a0418;
   --red: #dc2626;
-  --text: #1c1917;
-  --t2: #78716c;
-  --t3: #a8a29e;
+  --red-dim: #dc262618;
+  --text: #18181b;
+  --t2: #3f3f46;
+  --t3: #6b6b76;
+  --radius: 4px;
 }
 
 * {

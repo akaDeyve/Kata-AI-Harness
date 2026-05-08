@@ -1,9 +1,11 @@
+import { FileJs } from '../../components/Icons'
+
 /* ── JavaScript Language Module ── */
 
 export const JAVASCRIPT_CONFIG = {
   id: 'javascript',
   name: 'JavaScript',
-  icon: '📜',
+  icon: FileJs,
   extensions: ['.js', '.jsx'],
   defaultStarter: `// JavaScript Aufgabe
 // Dein Code hier

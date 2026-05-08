@@ -1,9 +1,7 @@
 [
   {
     "id": 1,
-    "group": "React Hooks",
     "name": "useState – Counter bauen",
-    "difficulty": "Leicht",
     "title": "useState – Zustand in Komponenten verwalten",
     "description": "Erstelle einen interaktiven Counter mit useState. Der Counter soll einen Anfangswert von 0 haben und Buttons zum Erhöhen, Verringern und Zurücksetzen bereitstellen. Achte darauf, dass der Wert nicht unter 0 fallen kann (mindestens 0). Nutze die funktionale Update-Form von setState für sichere Updates.",
     "hint": "useState(0) initialisiert den State. setCount(prev => prev + 1) nutzt die funktionale Form, die immer den aktuellen Wert verwendet. Für die Untergrenze: setCount(prev => Math.max(0, prev - 1)).",
@@ -11,9 +9,7 @@
   },
   {
     "id": 2,
-    "group": "React Hooks",
     "name": "useEffect – API laden",
-    "difficulty": "Mittel",
     "title": "useEffect – Side Effects und Daten laden",
     "description": "Schreibe eine Komponente, die mit useEffect Daten von einer API lädt. Zeige einen Lade-Spinner während des Ladens, eine Fehlermeldung bei Fehlschlag und die Daten nach erfolgreichem Laden. Nutze async/await innerhalb von useEffect und cleanup, falls die Komponente unmounted wird.",
     "hint": "useEffect(() => { ... }, []) führt den Effekt nach dem ersten Rendern aus. Verwende einen 'aborted'-Flag oder AbortController für Cleanup. Setze isLoading true vor dem Fetch und false im finally-Block.",
@@ -21,9 +17,7 @@
   },
   {
     "id": 3,
-    "group": "React Hooks",
     "name": "useContext – Theme-Switcher",
-    "difficulty": "Mittel",
     "title": "useContext – Globalen Zustand bereitstellen",
     "description": "Erstelle einen Theme-Context (hell/dunkel) mit React.createContext und useContext. Implementiere einen ThemeProvider, der den Theme-Zustand bereitstellt, und eine Komponente, die mit useContext darauf zugreift und zwischen hell und dunkel umschalten kann. Der Theme-Wechsel soll sofort sichtbar sein.",
     "hint": "createContext() erstellt den Context. ThemeProvider umschliesst die Kinder und stellt den Wert via Provider bereit. useContext(ThemeContext) in der Kindkomponente greift auf den Wert zu.",
@@ -31,9 +25,7 @@
   },
   {
     "id": 4,
-    "group": "React Hooks",
     "name": "useRef – Fokus steuern",
-    "difficulty": "Leicht",
     "title": "useRef – DOM-Referenzen und mutable Werte",
     "description": "Erstelle ein Formular, bei dem ein Input-Feld automatisch fokussiert wird, sobald die Komponente mounted. Nutze useRef, um eine Referenz auf das DOM-Element zu erhalten. Zusätzlich soll ein Button den Fokus jederzeit auf das Input-Feld zurücksetzen können. Zeige auch, wie useRef einen Wert über Render hinweg behalten kann (z.B. Render-Zähler).",
     "hint": "const inputRef = useRef(null) erstellt die Referenz. <input ref={inputRef} /> bindet sie ans DOM. inputRef.current.focus() setzt den Fokus. useRef behält den Wert zwischen Renders, ohne einen Re-Render auszulösen.",
@@ -41,9 +33,7 @@
   },
   {
     "id": 5,
-    "group": "React Hooks",
     "name": "useReducer – Todo-Liste",
-    "difficulty": "Schwer",
     "title": "useReducer – Komplexen Zustand mit Reducer verwalten",
     "description": "Baue eine Todo-Liste mit useReducer. Der State soll ein Array von Todos enthalten, jedes mit id, text und done-Status. Implementiere Aktionen für: ADD_TODO (neues Todo hinzufügen), TOGGLE_TODO (erledigt/nicht erledigt umschalten), DELETE_TODO (Todo löschen) und CLEAR_DONE (alle erledigten löschen). Der Reducer soll diese Aktionen verarbeiten.",
     "hint": "Definiere einen initialen State und eine Reducer-Funktion: (state, action) => newState. Dispatch-Aufrufe: dispatch({ type: 'ADD_TODO', payload: text }). Der Reducer prüft action.type und führt die entsprechende Logik aus.",
@@ -51,9 +41,7 @@
   },
   {
     "id": 6,
-    "group": "React Hooks",
     "name": "useMemo – Performance",
-    "difficulty": "Schwer",
     "title": "useMemo – Teure Berechnungen optimieren",
     "description": "Erstelle eine Komponente mit einer teuren Berechnung (z.B. Primzahlen-Suche), die nur dann neu berechnet wird, wenn sich die Abhängigkeiten ändern. Nutze useMemo, um die Performance zu optimieren. Zeige einen unabhängigen Counter, der demonstriert, dass die Berechnung nicht bei jedem Render neu läuft.",
     "hint": "const result = useMemo(() => expensiveCalculation(input), [input]) berechnet den Wert nur neu, wenn sich input ändert. Ohne useMemo würde die Berechnung bei jedem Render erneut laufen. useCallback ist das Pendant für Funktionen.",
@@ -61,9 +49,7 @@
   },
   {
     "id": 7,
-    "group": "Props & Komponenten",
     "name": "Prop Drilling",
-    "difficulty": "Mittel",
     "title": "Prop Drilling – Daten durch Komponenten-Ebenen reichen",
     "description": "Baue eine Komponenten-Hierarchie mit 3 Ebenen: App → Dashboard → UserCard. Die App-Komponente hält einen User-Objekt-State (name, email, role). Dieser soll durch Prop Drilling an UserCard weitergereicht werden. UserCard zeigt die Daten an und hat einen Button, um die Rolle des Users zu ändern. Die Änderung muss bis zur App hochgereicht werden (Callback als Prop).",
     "hint": "Props werden von Ebene zu Ebene weitergereicht: <Dashboard user={user} onRoleChange={handleRoleChange} /> → <UserCard user={user} onRoleChange={onRoleChange} />. Das ist Prop Drilling – Middle-Komponenten reichen Props durch, die sie selbst nicht brauchen.",
@@ -71,9 +57,7 @@
   },
   {
     "id": 8,
-    "group": "Props & Komponenten",
     "name": "Prop Destructuring",
-    "difficulty": "Leicht",
     "title": "Prop Destructuring – Sauberer Zugriff auf Props",
     "description": "Schreibe eine Komponente, die Props mit Destructuring entgegennimmt. Zeige verschiedene Varianten: 1) Standard-Destructuring im Funktionsparameter, 2) Destructuring mit Default-Werten, 3) Umbenennung von Properties, 4) Rest-Pattern für verbleibende Props. Erstelle eine ProductCard, die diese Techniken demonstriert.",
     "hint": "function Card({ name, price = 0, discount: rabatt, ...rest }) – name wird destrukturiert, price hat Default 0, discount wird in rabatt umbenannt, rest sammelt alle weiteren Props. Das macht Code lesbarer und vermeidet 'props.'-Prefix.",
@@ -81,9 +65,7 @@
   },
   {
     "id": 9,
-    "group": "CSS & Styling",
     "name": "Tailwind – Karte layouten",
-    "difficulty": "Leicht",
     "title": "Tailwind CSS – Responsive Produktkarte gestalten",
     "description": "Erstelle eine responsive Produktkarte mit Tailwind CSS. Die Karte soll enthalten: ein Bild, einen Titel, eine Beschreibung, einen Preis, eine Bewertung (Sterne) und einen 'In den Warenkorb'-Button. Die Karte soll auf mobilen Geräten die volle Breite einnehmen und auf Desktop-Geräten in einem Grid dargestellt werden. Nutze Tailwind-Klassen wie grid, flex, shadow, hover:, rounded, gap, text-* und bg-*.",
     "hint": "Tailwind arbeitet mit Utility-Klassen: <div className=\"max-w-sm rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow\">. Für responsive: <div className=\"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6\">.",
@@ -91,9 +73,7 @@
   },
   {
     "id": 10,
-    "group": "Array-Operationen",
     "name": "Array-Eintrag per ID finden",
-    "difficulty": "Leicht",
     "title": "Array.find() – Eintrag anhand ID ausgeben",
     "description": "Du hast ein Array von Produkten. Schreibe eine Komponente, die mit Array.find() das Produkt mit einer bestimmten ID findet und anzeigt. Behandle den Fall, dass kein Produkt mit der ID existiert (find() gibt undefined zurueck). Zeige dann 'Produkt nicht gefunden' an.",
     "hint": "Nutze products.find(p => p.id === id). Beachte: find() gibt undefined zurueck, wenn nichts gefunden wird. Pruefe das Ergebnis mit if (!product) before rendering.",
@@ -101,9 +81,7 @@
   },
   {
     "id": 11,
-    "group": "Array-Operationen",
     "name": "Array-Eintrag per ID updaten",
-    "difficulty": "Mittel",
     "title": "Array.map() + Spread – Eintrag aktualisieren",
     "description": "Erstelle eine Produktliste mit useState. Implementiere eine updateProduct-Funktion, die ein Produkt anhand seiner ID aktualisiert, ohne den State zu mutieren. Nutze .map() und den Spread-Operator (...), um eine neue Kopie des Arrays zu erstellen, bei der nur der eine Eintrag geaendert wird.",
     "hint": "setProducts(prev => prev.map(p => p.id === id ? { ...p, ...changes } : p)). Denk daran: State NIE direkt mutieren – immer eine neue Kopie zurueckgeben.",
@@ -111,9 +89,7 @@
   },
   {
     "id": 12,
-    "group": "Array-Operationen",
     "name": "Array-Eintrag per ID loeschen",
-    "difficulty": "Leicht",
     "title": "Array.filter() – Eintrag entfernen",
     "description": "Erstelle eine Todo-Liste mit Loeschfunktion. Implementiere eine deleteTodo-Funktion mit Array.filter(), die einen Eintrag anhand seiner ID entfernt. filter() erstellt ein neues Array – das ist genau das, was wir fuer unveraenderlichen State brauchen.",
     "hint": "setTodos(prev => prev.filter(todo => todo.id !== id)). filter() behaelt alle Elemente, fuer die die Bedingung true ist – also alle AUSSER dem mit der zu loeschenden ID.",

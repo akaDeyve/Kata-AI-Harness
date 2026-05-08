@@ -23,8 +23,9 @@ export {
   toggleModule,
   getModulesByType,
   getEnabledProviders,
+  getEnabledDatasets,
   isFeatureEnabled,
 } from './registry'
 
 // Task Data
-export { default as tasksData } from './taskdata/tasks.json'
+export { TASKDATASETS, getTasksForDatasets, getDataset } from './taskdata'

@@ -18,7 +18,9 @@ export default {
         'green': 'var(--green)',
         'green-dim': 'var(--green-dim)',
         'yellow': 'var(--yellow)',
+        'yellow-dim': 'var(--yellow-dim)',
         'red': 'var(--red)',
+        'red-dim': 'var(--red-dim)',
         'text': 'var(--text)',
         't2': 'var(--t2)',
         't3': 'var(--t3)',
@@ -31,11 +33,11 @@ export default {
         'app': '8px',
       },
       fontSize: {
-        'xs': ['0.875rem', { lineHeight: '1.125rem' }],   // 14px
-        'sm': ['0.9375rem', { lineHeight: '1.375rem' }],  // 15px
-        'base': ['1rem', { lineHeight: '1.5rem' }],       // 16px
-        'lg': ['1.125rem', { lineHeight: '1.625rem' }],   // 18px
-        'xl': ['1.25rem', { lineHeight: '1.75rem' }],     // 20px
+        'xs': ['0.8125rem', { lineHeight: '1.125rem' }],  // 13px
+        'sm': ['0.875rem', { lineHeight: '1.25rem' }],    // 14px
+        'base': ['0.9375rem', { lineHeight: '1.375rem' }],// 15px
+        'lg': ['1.0625rem', { lineHeight: '1.5rem' }],    // 17px
+        'xl': ['1.1875rem', { lineHeight: '1.625rem' }],  // 19px
       }
     },
   },
