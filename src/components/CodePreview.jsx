@@ -187,18 +187,28 @@ function buildPreviewHtml(transpiledCode) {
     var AppComponent = null;
     
     // Look for component definitions in the global scope
-    var globalNames = Object.keys(window).filter(function(key) {
-      return typeof window[key] === 'function' 
-        && key[0] === key[0].toUpperCase() 
-        && key !== 'React' 
-        && key !== 'ReactDOM';
-    });
+    // Nutze try/catch für window-Zugriff, da localStorage/IndexedDB in Sandbox ohne allow-same-origin verboten sind
+    var globalNames = [];
+    try {
+      globalNames = Object.keys(window).filter(function(key) {
+        try {
+          return typeof window[key] === 'function' 
+            && key[0] === key[0].toUpperCase() 
+            && key !== 'React' 
+            && key !== 'ReactDOM';
+        } catch (e) {
+          return false;
+        }
+      });
+    } catch (e) {
+      // Fallback: ignore window enumeration errors
+    }
     
     // If there's a default export or a function component, try to render it
     var componentToRender = null;
     
-    // Try ProductFinder, ProductList, UserCard, VolumeControl, etc.
-    var commonNames = ['ProductFinder', 'ProductList', 'TodoList', 'UserCard', 'UserProfile', 'VolumeControl', 'SortableList', 'EditProductForm', 'UserPage'];
+    // Typische Komponenten-Namen aus den Aufgaben
+    var commonNames = ['Counter', 'UserList', 'ThemeButton', 'FocusForm', 'TodoApp', 'TodoList', 'PerformanceDemo', 'ProductCard', 'ProductGrid', 'ProductFinder', 'ProductList', 'UserCard', 'UserProfile', 'Dashboard', 'VolumeControl', 'SortableList', 'EditProductForm', 'UserPage'];
     for (var i = 0; i < commonNames.length; i++) {
       if (typeof window[commonNames[i]] === 'function') {
         componentToRender = window[commonNames[i]];

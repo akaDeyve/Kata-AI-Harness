@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
-import { Info, Clipboard, Warning, Wrench, Sparkle } from './Icons'
+import { Info, Clipboard, Warning, Sparkle, Wrench } from './Icons'
 
 /* ── Helpers ── */
 
@@ -75,7 +75,7 @@ export default function RightPanel({ task, feedback, correction, isLoading, isCo
       {/* Header */}
       <div className="flex items-center justify-between h-[52px] px-4 border-b border-borderc shrink-0">
         {!collapsed && <span className="text-sm font-semibold text-text whitespace-nowrap">Aufgaben-Info</span>}
-        <button onClick={onToggleCollapse} className={`w-7 h-7 rounded-[6px] border border-border2 bg-transparent text-t2 flex items-center justify-center flex-shrink-0 hover:bg-s3 hover:text-text transition-all ${collapsed ? 'mx-auto' : ''}`}>
+        <button onClick={onToggleCollapse} className={`w-7 h-7 rounded-[6px] border border-border2 bg-transparent text-t2 flex items-center justify-center flex-shrink-0 hover:bg-s3 hover:text-text ${collapsed ? 'mx-auto' : ''}`}>>
           {collapsed ? '‹' : '›'}
         </button>
       </div>
@@ -85,7 +85,7 @@ export default function RightPanel({ task, feedback, correction, isLoading, isCo
         <div className="flex border-b border-borderc shrink-0">
           {TABS.map(t => (
             <button key={t.id} onClick={() => setActiveTab(t.id)}
-              className={`flex-1 py-3 text-center text-xs font-semibold tracking-wider uppercase cursor-pointer border-b-2 transition-all ${
+              className={`flex-1 py-3 text-center text-xs font-semibold tracking-wider uppercase cursor-pointer border-b-2 ${
                 activeTab === t.id ? 'text-accent border-accent' : 'text-t3 border-transparent hover:text-t2'
               }`}>
               {t.label}
@@ -114,12 +114,12 @@ export default function RightPanel({ task, feedback, correction, isLoading, isCo
                   </div>
                 )}
                 {feedback && !isLoading && (
-                  <div className="animate-fade-in">
+                  <div>
                     {feedback.score !== null && (
                       <div className="flex items-center gap-3 mb-3">
-                        <span className={`text-base font-bold ${feedback.score >= 8 ? 'text-[#a8e6cf]' : feedback.score >= 5 ? 'text-[#ffd3b6]' : 'text-[#ffaaa5]'}`}>Score: {feedback.score}/10</span>
+                        <span className={`text-base font-bold ${feedback.score >= 8 ? 'text-green' : feedback.score >= 5 ? 'text-yellow' : 'text-red'}`}>Score: {feedback.score}/10</span>
                         <div className="flex-1 h-1 bg-s3 rounded-full overflow-hidden">
-                          <div className={`h-full rounded-full transition-all duration-500 ${feedback.score >= 8 ? 'bg-[#a8e6cf]' : feedback.score >= 5 ? 'bg-[#ffd3b6]' : 'bg-[#ffaaa5]'}`} style={{ width: `${feedback.score * 10}%` }} />
+                          <div className={`h-full rounded-full ${feedback.score >= 8 ? 'bg-green' : feedback.score >= 5 ? 'bg-yellow' : 'bg-red'}`} style={{ width: `${feedback.score * 10}%` }} />
                         </div>
                       </div>
                     )}
@@ -130,7 +130,7 @@ export default function RightPanel({ task, feedback, correction, isLoading, isCo
                   </div>
                 )}
                 {correction && !isCorrectionLoading && (
-                  <div className="animate-fade-in">
+                  <div>
                     {correction.isError
                       ? <div className="flex items-start gap-2 p-3 rounded bg-red-900/10 border border-red-900/20"><span className="text-red shrink-0"><Warning size={18} /></span><p className="text-sm text-red/80 whitespace-pre-wrap">{correction.content}</p></div>
                       : parseContent(correction.content)

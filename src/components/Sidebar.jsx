@@ -1,10 +1,10 @@
-import { Brackets, ShieldCheck, Layout, Cloud } from './Icons'
+import { Brackets, Layout, Link, GitMerge } from './Icons'
 
 const GROUP_ICONS = {
+  'React Hooks': <Link size={15} />,
+  'Props & Komponenten': <GitMerge size={15} />,
+  'CSS & Styling': <Layout size={15} />,
   'Array-Operationen': <Brackets size={15} />,
-  'Sicherer Datenzugriff': <ShieldCheck size={15} />,
-  'Rendering-Muster': <Layout size={15} />,
-  'API & State': <Cloud size={15} />,
 }
 
 const dotColors = {
@@ -51,7 +51,7 @@ export default function Sidebar({ tasks, selectedTaskId, onSelectTask, collapsed
             <span className="text-base font-semibold text-text tracking-wide whitespace-nowrap">CodeLab</span>
           </div>
         )}
-        <button onClick={onToggleCollapse} className={`w-[26px] h-[26px] rounded-[6px] border border-border2 bg-transparent text-t2 flex items-center justify-center flex-shrink-0 hover:bg-s3 hover:text-text transition-all ${collapsed ? 'mx-auto' : ''}`} title="Sidebar einklappen">
+        <button onClick={onToggleCollapse} className={`w-[26px] h-[26px] rounded-[6px] border border-border2 bg-transparent text-t2 flex items-center justify-center flex-shrink-0 hover:bg-s3 hover:text-text ${collapsed ? 'mx-auto' : ''}`} title="Sidebar einklappen">
           {collapsed ? '›' : '‹'}
         </button>
       </div>

@@ -1,14 +1,12 @@
 import { useState } from 'react'
 import { callAI } from '../lib/api'
-import { Close, Sparkle, Robot, Check } from './Icons'
+import { Close, Sparkle } from './Icons'
 
 const CATEGORIES = [
+  { id: 'React Hooks', icon: '🪝', desc: 'useState, useEffect, useContext, useRef, useReducer, useMemo' },
+  { id: 'Props & Komponenten', icon: '🔗', desc: 'Prop Drilling, Destructuring, Komponenten-Kommunikation' },
+  { id: 'CSS & Styling', icon: '🎭', desc: 'Tailwind, CSS, Responsive Design' },
   { id: 'Array-Operationen', icon: '📊', desc: 'map, filter, find, reduce & Co.' },
-  { id: 'Sicherer Datenzugriff', icon: '🛡️', desc: 'Optional Chaining, ??, Destructuring' },
-  { id: 'Rendering-Muster', icon: '🎨', desc: 'Conditional Rendering, key-Prop, Listen' },
-  { id: 'API & State', icon: '☁️', desc: 'Fetch, Formulare, Side Effects' },
-  { id: 'React Hooks', icon: '🪝', desc: 'useState, useEffect, useRef, useCallback' },
-  { id: 'CSS & Styling', icon: '🎭', desc: 'Tailwind, CSS-in-JS, Responsive Design' },
 ]
 
 const DIFFICULTIES = [
@@ -112,7 +110,7 @@ Die Aufgabe soll:
               <p className="text-xs text-t2">Erstelle eine neue Programmieraufgabe per KI</p>
             </div>
           </div>
-          <button onClick={onClose} className="text-t2 hover:text-text transition-colors p-0.5"><Close size={18} /></button>
+          <button onClick={onClose} className="text-t2 hover:text-text p-0.5" aria-label="Schließen"><Close size={18} /></button>
         </div>
 
         {/* Body */}
@@ -132,7 +130,7 @@ Die Aufgabe soll:
                 <button
                   key={c.id}
                   onClick={() => setCategory(c.id)}
-                  className={`text-left px-3 py-2.5 rounded-lg border text-xs transition-all ${
+                  className={`text-left px-3 py-2.5 rounded-lg border text-xs ${
                     category === c.id
                       ? 'bg-accent/10 border-accent text-text'
                       : 'bg-s3 border-borderc text-t2 hover:bg-s2 hover:text-text'
@@ -153,7 +151,7 @@ Die Aufgabe soll:
                 <button
                   key={d.id}
                   onClick={() => setDifficulty(d.id)}
-                  className={`flex-1 px-4 py-2 rounded-lg border text-sm font-medium transition-all ${
+                  className={`flex-1 px-4 py-2 rounded-lg border text-sm font-medium ${
                     difficulty === d.id
                       ? 'bg-s2 border-accent text-text'
                       : 'bg-s3 border-borderc text-t2 hover:bg-s2'
@@ -174,7 +172,7 @@ Die Aufgabe soll:
               value={concept}
               onChange={e => setConcept(e.target.value)}
               placeholder="z.B. 'useReducer mit Context API für globalen State', 'useMemo für Performance-Optimierung', 'Custom Hooks erstellen' ..."
-              className="w-full bg-s3 text-text text-sm rounded-lg px-3.5 py-2.5 border border-border2 focus:border-accent focus:outline-none placeholder:text-t3 resize-none transition-colors"
+              className="w-full bg-s3 text-text text-sm rounded-lg px-3.5 py-2.5 border border-border2 focus:border-accent focus:outline-none placeholder:text-t3 resize-none"
               rows={2}
             />
           </div>
@@ -183,7 +181,7 @@ Die Aufgabe soll:
           <button
             onClick={handleGenerate}
             disabled={isGenerating || needsKey}
-            className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-accent text-white text-sm font-semibold border border-transparent hover:bg-[#7b73ff] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-accent text-white text-sm font-semibold border border-transparent hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isGenerating ? (
               <>

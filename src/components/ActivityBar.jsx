@@ -2,7 +2,7 @@ export default function ActivityBar() {
   return (
     <div className="w-12 bg-s3 flex flex-col items-center py-2 border-r border-borderc select-none shrink-0">
       <div
-        className="w-10 h-10 flex items-center justify-center text-t2 cursor-pointer border-l-2 border-accent bg-s2 transition-all duration-200 hover:bg-s1 group"
+        className="w-10 h-10 flex items-center justify-center text-t2 cursor-pointer border-l-2 border-accent bg-s2 group"
         title="Aufgaben"
       >
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"

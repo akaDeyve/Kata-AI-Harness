@@ -1,4 +1,4 @@
-import { Key, Check, RotateCcw, Clipboard, Wrench, Robot, Sparkle } from './Icons'
+import { Key, Check, RotateCcw, Clipboard, Wrench, Robot, Sparkle, Settings } from './Icons'
 
 const pillClasses = {
   'Leicht': 'bg-[#a8e6cf18] text-[#a8e6cf]',
@@ -6,7 +6,7 @@ const pillClasses = {
   'Schwer': 'bg-[#ffaaa518] text-[#ffaaa5]',
 }
 
-export default function TopBar({ task, onApiClick, hasApiKey, onReset, onGetFeedback, onGetCorrection, onGenerateTask, isLoading, isCorrectionLoading }) {
+export default function TopBar({ task, onApiClick, hasApiKey, onReset, onGetFeedback, onGetCorrection, onGenerateTask, onSettingsClick, showPreview, isLoading, isCorrectionLoading }) {
   return (
     <div className="h-[52px] flex items-center justify-between px-5 border-b border-borderc bg-s1 shrink-0 gap-3 select-none">
       <div className="flex items-center gap-3 min-w-0">
@@ -15,30 +15,38 @@ export default function TopBar({ task, onApiClick, hasApiKey, onReset, onGetFeed
       </div>
 
       <div className="flex items-center gap-2 shrink-0">
-        <button onClick={onReset} className="inline-flex items-center gap-2 px-3 py-2 rounded-app border border-border2 bg-transparent text-t2 text-sm font-medium hover:bg-s3 hover:text-text transition-all" title="Zurücksetzen">
+        <button onClick={onReset} className="inline-flex items-center gap-2 px-3 py-2 rounded-app border border-border2 bg-transparent text-t2 text-sm font-medium hover:bg-s3 hover:text-text" title="Zurücksetzen">
           <RotateCcw size={14} /> Reset
         </button>
 
-        <button onClick={onApiClick} className={`inline-flex items-center gap-2 px-3 py-2 rounded-app border text-sm font-medium transition-all ${
+        <button onClick={onApiClick} className={`inline-flex items-center gap-2 px-3 py-2 rounded-app border text-sm font-medium ${
           hasApiKey
-            ? 'border-green-700/40 bg-green-dim text-green hover:bg-[#3ecf8e28]'
+            ? 'border-green/40 bg-green-dim text-green hover:bg-green-dim'
             : 'border-border2 bg-transparent text-t2 hover:bg-s3 hover:text-text'
         }`}>
           {hasApiKey ? <Check size={14} /> : <Key size={14} />} API
         </button>
 
-        <button onClick={onGetCorrection} disabled={isCorrectionLoading} className="inline-flex items-center gap-2 px-3 py-2 rounded-app border border-border2 bg-transparent text-t2 text-sm font-medium hover:bg-s3 hover:text-text transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+        <button onClick={onGetCorrection} disabled={isCorrectionLoading} className="inline-flex items-center gap-2 px-3 py-2 rounded-app border border-border2 bg-transparent text-t2 text-sm font-medium hover:bg-s3 hover:text-text disabled:opacity-50 disabled:cursor-not-allowed">
           <Wrench size={14} /> Korrektur
         </button>
 
-        <button onClick={onGetFeedback} disabled={isLoading} className="inline-flex items-center gap-2 px-3 py-2 rounded-app bg-accent text-white text-sm font-medium border border-transparent hover:bg-[#7b73ff] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+        <button onClick={onGetFeedback} disabled={isLoading} className="inline-flex items-center gap-2 px-3 py-2 rounded-app bg-accent text-white text-sm font-medium border border-transparent hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed">
           <Robot size={14} /> AI-Feedback
         </button>
 
         <div className="w-px h-6 bg-border mx-1" />
 
-        <button onClick={onGenerateTask} className="inline-flex items-center gap-2 px-3 py-2 rounded-app border border-border2 bg-transparent text-t2 text-sm font-medium hover:bg-s3 hover:text-text transition-all" title="KI-Aufgabe generieren">
-          <Sparkle size={14} /> Generieren
+        {onGenerateTask && (
+          <button onClick={onGenerateTask} className="inline-flex items-center gap-2 px-3 py-2 rounded-app border border-border2 bg-transparent text-t2 text-sm font-medium hover:bg-s3 hover:text-text" title="KI-Aufgabe generieren">
+            <Sparkle size={14} /> Generieren
+          </button>
+        )}
+
+        <div className="w-px h-6 bg-border mx-1" />
+
+        <button onClick={onSettingsClick} className="inline-flex items-center gap-2 px-3 py-2 rounded-app border border-border2 bg-transparent text-t2 text-sm font-medium hover:bg-s3 hover:text-text" title="Einstellungen">
+          <Settings size={14} /> Einstellungen
         </button>
       </div>
     </div>

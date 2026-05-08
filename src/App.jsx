@@ -9,8 +9,11 @@ import StatusBar from './components/StatusBar'
 import ApiKeyModal from './components/ApiKeyModal'
 import GenerateTaskModal from './components/GenerateTaskModal'
 import Toast from './components/Toast'
+import ConfigSettingsModal from './components/ConfigSettingsModal'
+import { DEFAULT_PROVIDER, loadTheme, applyTheme } from './modules'
 import { callAI, safeJsonParse } from './lib/api'
-import tasksData from './data/tasks.json'
+import { getModuleState, getEnabledProviders } from './modules/registry'
+import tasksData from './modules/taskdata/tasks.json'
 
 const STORAGE_PREFIX = 'code_trainer_code_'
 const STORAGE_TASKS_KEY = 'code_trainer_tasks'
@@ -44,6 +47,9 @@ export default function App() {
   const [isCorrectionLoading, setIsCorrectionLoading] = useState(false)
   const [showApiModal, setShowApiModal] = useState(false)
   const [showGenerateModal, setShowGenerateModal] = useState(false)
+  const [showSettingsModal, setShowSettingsModal] = useState(false)
+  const [moduleState, setModuleState] = useState(getModuleState)
+  const [enabledProviderIds, setEnabledProviderIds] = useState(getEnabledProviders)
   const [showPreview, setShowPreview] = useState(false)
   const [previewSplit, setPreviewSplit] = useState(50) // percentage for split view
   const splitViewRef = useRef(null)
@@ -56,9 +62,9 @@ export default function App() {
 
   const [apiConfig, setApiConfig] = useState(() => ({
     key: localStorage.getItem('api_key') || '',
-    baseUrl: localStorage.getItem('api_base_url') || 'https://api.openai.com/v1',
-    model: localStorage.getItem('api_model') || 'gpt-4o-mini',
-    apiType: localStorage.getItem('api_type') || 'openai',
+    baseUrl: localStorage.getItem('api_base_url') || '',
+    model: localStorage.getItem('api_model') || '',
+    apiType: localStorage.getItem('api_type') || DEFAULT_PROVIDER,
   }))
 
   const selectedTask = tasks.find(t => t.id === selectedTaskId)
@@ -95,6 +101,12 @@ export default function App() {
     if (selectedTaskId && code) saveCodeToStorage(selectedTaskId, code)
   }, [code, selectedTaskId])
 
+  // Load saved theme on mount
+  useEffect(() => {
+    const savedTheme = loadTheme()
+    applyTheme(savedTheme)
+  }, [])
+
   const handleSaveApiConfig = useCallback((config) => {
     setApiConfig(config)
     localStorage.setItem('api_key', config.key)
@@ -102,6 +114,14 @@ export default function App() {
     localStorage.setItem('api_model', config.model)
     localStorage.setItem('api_type', config.apiType)
     setShowApiModal(false)
+  }, [])
+
+  const handleModuleSettingsChange = useCallback(() => {
+    setModuleState(getModuleState())
+    setEnabledProviderIds(getEnabledProviders())
+    if (!getModuleState()['feature:preview']) {
+      setShowPreview(false)
+    }
   }, [])
 
   /* ── AI calls ── */
@@ -178,14 +198,16 @@ Antworte NUR auf Deutsch.
           onReset={handleResetCode}
           onGetFeedback={handleGetFeedback}
           onGetCorrection={handleGetCorrection}
-          onGenerateTask={() => setShowGenerateModal(true)}
+          onGenerateTask={moduleState['feature:generate'] !== false ? () => setShowGenerateModal(true) : undefined}
+          onSettingsClick={() => setShowSettingsModal(true)}
           isLoading={isLoading}
           isCorrectionLoading={isCorrectionLoading}
+          showPreview={moduleState['feature:preview'] !== false}
         />
 
         <div className="flex-1 flex overflow-hidden">
           <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-            <EditorToolbar code={code} onReset={handleResetCode} showToast={showToast} onTogglePreview={() => setShowPreview(v => !v)} showPreview={showPreview} />
+            <EditorToolbar code={code} onReset={handleResetCode} showToast={showToast} onTogglePreview={() => setShowPreview(v => !v)} showPreview={showPreview} enablePreview={moduleState['feature:preview'] !== false} />
             <div ref={splitViewRef} className="flex-1 flex overflow-hidden">
               {showPreview ? (
                 <>
@@ -246,12 +268,23 @@ Antworte NUR auf Deutsch.
       </div>
 
       {showApiModal && <ApiKeyModal config={apiConfig} onSave={handleSaveApiConfig} onClose={() => setShowApiModal(false)} />}
-      {showGenerateModal && (
+      {showGenerateModal && moduleState['feature:generate'] !== false && (
         <GenerateTaskModal
           apiConfig={apiConfig}
           onSave={handleSaveGeneratedTask}
           onClose={() => setShowGenerateModal(false)}
           showToast={showToast}
+        />
+      )}
+      {showSettingsModal && (
+        <ConfigSettingsModal
+          onClose={() => setShowSettingsModal(false)}
+          onSave={(newState) => {
+            setModuleState(newState)
+            setEnabledProviderIds(getEnabledProviders())
+            if (newState['feature:preview'] === false) setShowPreview(false)
+            showToast('Einstellungen gespeichert', 'success')
+          }}
         />
       )}
       {toast && <Toast key={toast.key} message={toast.message} type={toast.type} />}

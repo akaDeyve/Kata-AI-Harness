@@ -8,7 +8,7 @@ export default function StatusBar({ task, code = '' }) {
     <div className="h-8 flex items-center justify-between px-5 bg-s1 border-t border-borderc shrink-0 select-none">
       <div className="flex items-center gap-4">
         <span className="flex items-center gap-2 text-xs text-t3">
-          <span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse" />
+          <span className="w-1.5 h-1.5 rounded-full bg-green" />
           Bereit
         </span>
         {task && (
