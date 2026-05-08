@@ -1,4 +1,4 @@
-import { Key, Check, RotateCcw, Clipboard, Wrench, Robot } from './Icons'
+import { Key, Check, RotateCcw, Clipboard, Wrench, Robot, Sparkle } from './Icons'
 
 const pillClasses = {
   'Leicht': 'bg-[#a8e6cf18] text-[#a8e6cf]',
@@ -6,7 +6,7 @@ const pillClasses = {
   'Schwer': 'bg-[#ffaaa518] text-[#ffaaa5]',
 }
 
-export default function TopBar({ task, onApiClick, hasApiKey, onReset, onGetFeedback, onGetCorrection, isLoading, isCorrectionLoading }) {
+export default function TopBar({ task, onApiClick, hasApiKey, onReset, onGetFeedback, onGetCorrection, onGenerateTask, isLoading, isCorrectionLoading }) {
   return (
     <div className="h-[52px] flex items-center justify-between px-5 border-b border-borderc bg-s1 shrink-0 gap-3 select-none">
       <div className="flex items-center gap-3 min-w-0">
@@ -33,6 +33,12 @@ export default function TopBar({ task, onApiClick, hasApiKey, onReset, onGetFeed
 
         <button onClick={onGetFeedback} disabled={isLoading} className="inline-flex items-center gap-2 px-3 py-2 rounded-app bg-accent text-white text-sm font-medium border border-transparent hover:bg-[#7b73ff] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
           <Robot size={14} /> AI-Feedback
+        </button>
+
+        <div className="w-px h-6 bg-border mx-1" />
+
+        <button onClick={onGenerateTask} className="inline-flex items-center gap-2 px-3 py-2 rounded-app border border-border2 bg-transparent text-t2 text-sm font-medium hover:bg-s3 hover:text-text transition-all" title="KI-Aufgabe generieren">
+          <Sparkle size={14} /> Generieren
         </button>
       </div>
     </div>

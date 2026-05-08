@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
-import { Clipboard, Check } from './Icons'
+import { Clipboard, Check, Eye, EyeSlash } from './Icons'
 
-export default function EditorToolbar({ code, onReset, showToast }) {
+export default function EditorToolbar({ code, onReset, showToast, onTogglePreview, showPreview }) {
   const [copied, setCopied] = useState(false)
   const timerRef = useRef(null)
 
@@ -21,16 +21,32 @@ export default function EditorToolbar({ code, onReset, showToast }) {
   const charCount = code ? code.length : 0
 
   return (
-    <div className="flex items-center justify-between px-4 py-1.5 bg-[#252526] border-b border-[#3c3c3c] select-none shrink-0">
-      <div className="flex items-center gap-2 text-[11px] text-[#858585] font-mono">
+    <div className="flex items-center justify-between px-4 py-1.5 bg-s1 border-b border-borderc select-none shrink-0">
+      <div className="flex items-center gap-2 text-[11px] text-t3 font-mono">
         <span>{lineCount} Zeilen</span>
-        <span className="text-[#3c3c3c]">|</span>
+        <span className="text-border2">|</span>
         <span>{charCount} Zeichen</span>
       </div>
       <div className="flex items-center gap-1.5">
+        {onTogglePreview && (
+          <button
+            onClick={onTogglePreview}
+            className={`text-xs px-2.5 py-1 rounded transition-all duration-200 ${
+              showPreview
+                ? 'bg-accent/20 text-accent'
+                : 'text-t3 hover:text-text hover:bg-s3'
+            }`}
+            title={showPreview ? 'Editor-Ansicht' : 'Live-Vorschau'}
+          >
+            <span className="inline-flex items-center gap-1">
+              {showPreview ? <EyeSlash size={12} /> : <Eye size={12} />}
+              {showPreview ? 'Editor' : 'Preview'}
+            </span>
+          </button>
+        )}
         <button
           onClick={onReset}
-          className="text-xs px-2.5 py-1 rounded text-[#858585] hover:text-white hover:bg-[#3c3c3c] transition-all duration-200"
+          className="text-xs px-2.5 py-1 rounded text-t3 hover:text-text hover:bg-s3 transition-all duration-200"
           title="Aufgaben-Startercode wiederherstellen"
         >
           ↺ Zurücksetzen
@@ -39,8 +55,8 @@ export default function EditorToolbar({ code, onReset, showToast }) {
           onClick={handleCopy}
           className={`text-xs px-2.5 py-1 rounded transition-all duration-200 ${
             copied
-              ? 'bg-green-700/50 text-green-300'
-              : 'text-[#858585] hover:text-white hover:bg-[#3c3c3c]'
+              ? 'bg-green/30 text-green'
+              : 'text-t3 hover:text-text hover:bg-s3'
           }`}
           title={copied ? 'Kopiert!' : 'Code kopieren'}
         >

@@ -2,13 +2,18 @@ import { useState, useCallback, useRef, useEffect } from 'react'
 import TopBar from './components/TopBar'
 import Sidebar from './components/Sidebar'
 import Editor from './components/Editor'
+import CodePreview from './components/CodePreview'
+import EditorToolbar from './components/EditorToolbar'
 import RightPanel from './components/RightPanel'
 import StatusBar from './components/StatusBar'
 import ApiKeyModal from './components/ApiKeyModal'
+import GenerateTaskModal from './components/GenerateTaskModal'
 import Toast from './components/Toast'
-import tasks from './data/tasks.json'
+import { callAI, safeJsonParse } from './lib/api'
+import tasksData from './data/tasks.json'
 
 const STORAGE_PREFIX = 'code_trainer_code_'
+const STORAGE_TASKS_KEY = 'code_trainer_tasks'
 
 function loadSavedCode(taskId) {
   try { return localStorage.getItem(`${STORAGE_PREFIX}${taskId}`) } catch { return null }
@@ -17,30 +22,18 @@ function saveCodeToStorage(taskId, code) {
   try { localStorage.setItem(`${STORAGE_PREFIX}${taskId}`, code) } catch { }
 }
 
-/* ── Security helpers ── */
-function isValidUrl(string) {
-  // Accept relative URLs (e.g. '/gemini-api') for proxy usage
-  if (string.startsWith('/')) return true
-  try {
-    const url = new URL(string)
-    return url.protocol === 'http:' || url.protocol === 'https:'
-  } catch { return false }
-}
-
-function sanitizeBaseUrl(url) {
-  return url.replace(/\/+$/, '') // remove trailing slashes
-}
-
-function escapeHtml(text) {
-  const div = document.createElement('div')
-  div.appendChild(document.createTextNode(text))
-  return div.innerHTML
-}
-
 export default function App() {
-  const [selectedTaskId, setSelectedTaskId] = useState(tasks[0]?.id || null)
+  const [tasks, setTasks] = useState(() => {
+    const saved = localStorage.getItem('code_trainer_tasks')
+    if (saved) {
+      const parsed = safeJsonParse(saved)
+      if (Array.isArray(parsed)) return parsed
+    }
+    return tasksData
+  })
+  const [selectedTaskId, setSelectedTaskId] = useState(() => tasksData[0]?.id || null)
   const [code, setCode] = useState(() => {
-    const firstTask = tasks[0]
+    const firstTask = tasksData[0]
     if (!firstTask) return ''
     const saved = loadSavedCode(firstTask.id)
     return saved ?? (firstTask.starter || '')
@@ -50,6 +43,10 @@ export default function App() {
   const [correction, setCorrection] = useState(null)
   const [isCorrectionLoading, setIsCorrectionLoading] = useState(false)
   const [showApiModal, setShowApiModal] = useState(false)
+  const [showGenerateModal, setShowGenerateModal] = useState(false)
+  const [showPreview, setShowPreview] = useState(false)
+  const [previewSplit, setPreviewSplit] = useState(50) // percentage for split view
+  const splitViewRef = useRef(null)
   const [toast, setToast] = useState(null)
   const toastTimer = useRef(null)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -74,20 +71,26 @@ export default function App() {
 
   const handleSelectTask = useCallback((taskId) => {
     setSelectedTaskId(taskId)
-    const task = tasks.find(t => t.id === taskId)
-    if (task) {
-      const saved = loadSavedCode(taskId)
-      setCode(saved ?? (task.starter || ''))
-    }
     setFeedback(null)
     setCorrection(null)
+    // code will be set by the useEffect watching selectedTaskId
   }, [])
 
   const handleResetCode = useCallback(() => {
     const task = tasks.find(t => t.id === selectedTaskId)
     if (task) { setCode(task.starter || ''); showToast('Code zurückgesetzt', 'info') }
-  }, [selectedTaskId, showToast])
+  }, [selectedTaskId, tasks, showToast])
 
+  // Load code when task changes
+  useEffect(() => {
+    const task = tasks.find(t => t.id === selectedTaskId)
+    if (task) {
+      const saved = loadSavedCode(selectedTaskId)
+      setCode(saved ?? (task.starter || ''))
+    }
+  }, [selectedTaskId, tasks])
+
+  // Save code to localStorage
   useEffect(() => {
     if (selectedTaskId && code) saveCodeToStorage(selectedTaskId, code)
   }, [code, selectedTaskId])
@@ -102,52 +105,17 @@ export default function App() {
   }, [])
 
   /* ── AI calls ── */
-  const buildPrompts = () => {
-    const system = `Du bist ein erfahrener Coding-Mentor. Bewerte den Code basierend auf der Aufgabenstellung.
-Antworte NUR auf Deutsch.
-Gib zuerst eine Punktzahl von 1-10 im Format "Score: X/10".
-Gib dann eine kurze, konstruktive Bewertung (3-5 Saetze).
-Wenn du Code-Beispiele zeigst, nutze Markdown-Codebloecke.`
-    const user = `Aufgabe: ${selectedTask.title}\nBeschreibung: ${selectedTask.description}\n\nMein Code:\n\`\`\`\n${code}\n\`\`\`\n\nBitte bewerte meinen Code.`
-    return { system, user }
-  }
-
-  const callOpenCode = async (baseUrl, system, user) => {
-    const url = sanitizeBaseUrl(baseUrl).replace(/\/v1\/?$/, '').replace(/\/$/, '')
-    if (!isValidUrl(url)) throw new Error('Ungültige Base-URL für OpenCode')
-    const s = await fetch(`${url}/session`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title: 'Coding-Trainer' }),
-    })
-    if (!s.ok) throw new Error(`Session-Fehler: ${s.status}`)
-    const { id: sid } = await s.json()
-    const m = await fetch(`${url}/session/${sid}/message`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ parts: [{ type: 'text', text: system }, { type: 'text', text: user }] }),
-    })
-    if (!m.ok) throw new Error(`Message-Fehler: ${m.status}`)
-    const d = await m.json()
-    return d.parts?.filter(p => p.type === 'text' || p.type === 'tool-result').map(p => p.text || p.content || '').join('\n') || 'Keine Antwort.'
-  }
-
-  const callOpenAI = async (system, user) => {
-    const url = sanitizeBaseUrl(apiConfig.baseUrl)
-    if (!isValidUrl(url)) throw new Error('Ungültige Base-URL')
-    const r = await fetch(`${url}/chat/completions`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiConfig.key}` },
-      body: JSON.stringify({ model: apiConfig.model, messages: [{ role: 'system', content: system }, { role: 'user', content: user }], temperature: 0.7, max_tokens: 1500 }),
-    })
-    if (!r.ok) throw new Error(`API-Fehler: ${r.status}`)
-    return (await r.json()).choices?.[0]?.message?.content || 'Keine Antwort.'
-  }
-
   const handleGetFeedback = useCallback(async () => {
     if ((apiConfig.apiType !== 'opencode' && !apiConfig.key) || !selectedTask) { setShowApiModal(true); return }
     setIsLoading(true); setFeedback(null)
     try {
-      const { system, user } = buildPrompts()
-      const content = apiConfig.apiType === 'opencode' ? await callOpenCode(apiConfig.baseUrl, system, user) : await callOpenAI(system, user)
+      const system = `Du bist ein erfahrener Coding-Mentor. Bewerte den Code basierend auf der Aufgabenstellung.
+Antworte NUR auf Deutsch.
+Gib zuerst eine Punktzahl von 1-10 im Format "Score: X/10".
+Gib dann eine kurze, konstruktive Bewertung (3-5 Saetze).
+Wenn du Code-Beispiele zeigst, nutze Markdown-Codebloecke.`
+      const user = `Aufgabe: ${selectedTask.title}\nBeschreibung: ${selectedTask.description}\n\nMein Code:\n\`\`\`\n${code}\n\`\`\`\n\nBitte bewerte meinen Code.`
+      const content = await callAI(apiConfig, system, user)
       const scoreMatch = content.match(/Score:\s*(\d+)\/10/i)
       setFeedback({ content, score: scoreMatch ? parseInt(scoreMatch[1]) : null })
     } catch (err) { setFeedback({ content: `Fehler: ${err.message}`, score: null, isError: true }) }
@@ -165,14 +133,26 @@ Antworte NUR auf Deutsch.
 3. Erkläre kurz (2-3 Saetze), was verbessert wurde
 4. Zeige verbesserten Code in Markdown-Codeblock`
       const user = `Aufgabe: ${selectedTask.title}\nBeschreibung: ${selectedTask.description}\n\nMein Code:\n\`\`\`\n${code}\n\`\`\`\n\nBitte zeige die korrigierte Version.`
-      const content = apiConfig.apiType === 'opencode' ? await callOpenCode(apiConfig.baseUrl, system, user) : await callOpenAI(system, user)
+      const content = await callAI(apiConfig, system, user)
       setCorrection({ content })
     } catch (err) { setCorrection({ content: `Fehler: ${err.message}`, isError: true }) }
     finally { setIsCorrectionLoading(false) }
   }, [apiConfig, selectedTask, code])
 
+  /* ── Generate task handler ── */
+  const handleSaveGeneratedTask = useCallback((newTask) => {
+    setTasks(prev => {
+      const updated = [...prev, newTask]
+      try { localStorage.setItem(STORAGE_TASKS_KEY, JSON.stringify(updated)) } catch { /* ignore */ }
+      return updated
+    })
+    setSelectedTaskId(newTask.id)
+    setShowGenerateModal(false)
+    showToast('Neue Aufgabe wurde hinzugefügt!', 'success')
+  }, [showToast])
+
   /* ── Progress data ── */
-  const groupProgress = tasks.reduce((acc, t) => {
+  const groupProgress = (tasks || []).reduce((acc, t) => {
     if (!acc[t.group]) acc[t.group] = { total: 0, done: 0 }
     acc[t.group].total++
     return acc
@@ -198,14 +178,50 @@ Antworte NUR auf Deutsch.
           onReset={handleResetCode}
           onGetFeedback={handleGetFeedback}
           onGetCorrection={handleGetCorrection}
+          onGenerateTask={() => setShowGenerateModal(true)}
           isLoading={isLoading}
           isCorrectionLoading={isCorrectionLoading}
         />
 
         <div className="flex-1 flex overflow-hidden">
           <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-            <div className="flex-1 overflow-hidden">
-              <Editor code={code} onChange={setCode} />
+            <EditorToolbar code={code} onReset={handleResetCode} showToast={showToast} onTogglePreview={() => setShowPreview(v => !v)} showPreview={showPreview} />
+            <div ref={splitViewRef} className="flex-1 flex overflow-hidden">
+              {showPreview ? (
+                <>
+                  <div className="overflow-hidden" style={{ width: `${100 - previewSplit}%` }}>
+                    <Editor code={code} onChange={setCode} />
+                  </div>
+                  <div
+                    className="w-1 cursor-col-resize hover:bg-accent/40 active:bg-accent/60 bg-border transition-colors shrink-0 relative z-10"
+                    onMouseDown={(e) => {
+                      e.preventDefault()
+                      const parent = splitViewRef.current
+                      if (!parent) return
+                      const rect = parent.getBoundingClientRect()
+                      const onMove = (ev) => {
+                        const pct = ((ev.clientX - rect.left) / rect.width) * 100
+                        setPreviewSplit(Math.max(20, Math.min(80, pct)))
+                      }
+                      const onUp = () => {
+                        document.removeEventListener('mousemove', onMove)
+                        document.removeEventListener('mouseup', onUp)
+                        document.body.style.cursor = ''
+                      }
+                      document.body.style.cursor = 'col-resize'
+                      document.addEventListener('mousemove', onMove)
+                      document.addEventListener('mouseup', onUp)
+                    }}
+                  />
+                  <div className="overflow-hidden" style={{ width: `${previewSplit}%` }}>
+                    <CodePreview code={code} task={selectedTask} />
+                  </div>
+                </>
+              ) : (
+                <div className="flex-1 overflow-hidden">
+                  <Editor code={code} onChange={setCode} />
+                </div>
+              )}
             </div>
           </div>
 
@@ -230,6 +246,14 @@ Antworte NUR auf Deutsch.
       </div>
 
       {showApiModal && <ApiKeyModal config={apiConfig} onSave={handleSaveApiConfig} onClose={() => setShowApiModal(false)} />}
+      {showGenerateModal && (
+        <GenerateTaskModal
+          apiConfig={apiConfig}
+          onSave={handleSaveGeneratedTask}
+          onClose={() => setShowGenerateModal(false)}
+          showToast={showToast}
+        />
+      )}
       {toast && <Toast key={toast.key} message={toast.message} type={toast.type} />}
     </div>
   )
