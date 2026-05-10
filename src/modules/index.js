@@ -1,31 +1,41 @@
 /* ═══════════════════════════════════════════
    Central Module Registry
-   All modules are discoverable here.
+   Now backed by the @harness/* plugin system.
+   Re-exports for backward compatibility.
    ═══════════════════════════════════════════ */
 
-// Providers
-export { PROVIDERS, PROVIDER_REGISTRY, DEFAULT_PROVIDER, getProviderHandler } from './providers'
-
-// Themes
-export { THEMES, THEME_REGISTRY, DEFAULT_THEME, applyTheme, loadTheme } from './themes'
-
-// Features
-export { FEATURE_LIST, getFeature } from './features'
-
-// Languages
-export { LANGUAGES, LANGUAGE_REGISTRY, DEFAULT_LANGUAGE, getLanguageConfig } from './languages'
-
-// Module Registry (enable/disable)
+// Plugin System
 export {
-  DEFAULT_MODULES,
-  getModuleState,
-  saveModuleSettings,
-  toggleModule,
-  getModulesByType,
-  getEnabledProviders,
-  getEnabledDatasets,
-  isFeatureEnabled,
-} from './registry'
+  getEnabledPluginIds,
+  saveEnabledPluginIds,
+  togglePlugin,
+  getPluginsByType,
+  DISCOVERED_PLUGINS,
+} from './plugin-bridge.js'
 
-// Task Data
-export { TASKDATASETS, getTasksForDatasets, getDataset } from './taskdata'
+// Backward compatibility – only what's actually consumed by src/
+export { getTasksForDatasets } from '@harness/feature-tasks'
+
+// Config exports used by App.jsx and lib/api.js
+import { GEMINI_CONFIG, callGemini } from '@harness/provider-gemini'
+import { OPENROUTER_CONFIG, callOpenRouter } from '@harness/provider-openrouter'
+import { OLLAMA_CONFIG, callOllama } from '@harness/provider-ollama'
+import { OPENCODE_CONFIG, callOpenCode } from '@harness/provider-opencode'
+import { getEnabledPluginIds } from './plugin-bridge.js'
+
+export const PROVIDERS = [GEMINI_CONFIG, OPENROUTER_CONFIG, OLLAMA_CONFIG, OPENCODE_CONFIG]
+export const DEFAULT_PROVIDER = 'gemini'
+
+export function getProviderHandler(apiType) {
+  const handlers = { gemini: callGemini, openrouter: callOpenRouter, ollama: callOllama, opencode: (c, s, u) => callOpenCode(c.baseUrl, s, u) }
+  const handler = handlers[apiType]
+  if (!handler) throw new Error(`Unbekannter Anbieter: ${apiType}`)
+  return handler
+}
+
+export function getEnabledProviders() {
+  const enabledIds = getEnabledPluginIds()
+  const all = ['gemini', 'openrouter', 'ollama', 'opencode']
+  if (enabledIds.length === 0) return all
+  return all.filter(id => enabledIds.includes(`provider:${id}`))
+}

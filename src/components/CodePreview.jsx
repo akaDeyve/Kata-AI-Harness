@@ -192,6 +192,7 @@ export default function CodePreview({ code, task }) {
             sandbox="allow-scripts"
             className="w-full h-full border-0 bg-white"
             style={{ backgroundColor: "white" }}
+            allow=""
           />
         )}
       </div>
@@ -201,14 +202,49 @@ export default function CodePreview({ code, task }) {
 
 /* ── Build a self-contained HTML page for the iframe ── */
 
+/**
+ * Sanitize user code before injection into iframe srcDoc.
+ * Blocks common escape patterns that could access the parent window
+ * or exfiltrate data despite the sandbox attribute.
+ */
+function sanitizeUserCode(code) {
+  if (!code) return code;
+  // Remove attempts to access parent/top/frameElement
+  // These are basic patterns; the sandbox attribute is the primary defense
+  const patterns = [
+    /window\s*\.\s*parent/gi,
+    /window\s*\[\s*['"]parent['"]\s*\]/gi,
+    /top\s*\.\s*location/gi,
+    /top\s*\.\s*localStorage/gi,
+    /top\s*\.\s*sessionStorage/gi,
+    /top\s*\.\s*document/gi,
+    /frameElement/gi,
+    /window\s*\.\s*opener/gi,
+  ];
+  let sanitized = code;
+  for (const pattern of patterns) {
+    sanitized = sanitized.replace(pattern, 'undefined');
+  }
+  return sanitized;
+}
+
 function buildPreviewHtml(transpiledCode) {
+  // Sanitize transpiled code: strip potential parent-access attempts
+  const sanitized = sanitizeUserCode(transpiledCode);
+
   // Wrap the user's code to render it
-  // We need to detect if the user code defines a component or just renders something
   const renderScript = `
 <script>
+(function(){
+  "use strict";
+  // Block parent/top/frameElement access
+  try { delete window.parent; } catch(e) {}
+  try { delete window.top; } catch(e) {}
+  try { delete window.frameElement; } catch(e) {}
+})();
 try {
-  // Execute the user's transpiled code (runs in global scope, so function declarations become window properties)
-  ${transpiledCode}
+  // Execute the user's sanitized transpiled code
+  ${sanitized}
   
   // Try to find a component function and render it
   var rootEl = document.getElementById('root');
@@ -247,7 +283,7 @@ try {
     var root = ReactDOM.createRoot(rootEl);
     root.render(React.createElement(componentToRender));
   } else {
-    rootEl.innerHTML = '<div style="padding:20px;font-family:sans-serif;color:#666;text-align:center;"><p style="font-size:14px;">Code ausgef&uuml;hrt</p><p style="font-size:12px;margin-top:8px;">Keine React-Komponente gefunden. Definiere eine Funktion wie <code style="background:#f0f0f0;padding:2px 6px;border-radius:3px;font-size:12px;">ProductList()</code>.</p></div>';
+    rootEl.innerHTML = '<div style="padding:20px;font-family:sans-serif;color:#666;text-align:center;"><p style="font-size:14px;">Code ausgef&uuml;hrt</p><p style="font-size:12px;margin-top:8px;">Keine React-Komponente gefunden.</p></div>';
   }
 } catch (e) {
   document.getElementById('root').innerHTML = '<div id="preview-error" style="padding:16px;font-family:monospace;font-size:13px;color:#c00;background:#fff0f0;border-bottom:2px solid #fcc;"><strong>Runtime-Fehler:</strong><br>' + e.message + '<br><br><pre style="font-size:11px;color:#666;white-space:pre-wrap;margin:0;">' + e.stack + '</pre></div>';

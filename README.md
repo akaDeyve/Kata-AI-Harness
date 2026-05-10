@@ -1,6 +1,6 @@
 # Code Trainer AI – Open Source
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue)](https://github.com/your-username/coding-trainer)
+[![Version](https://img.shields.io/badge/version-2.0.0-blue)](https://github.com/your-username/coding-trainer)
 [![React](https://img.shields.io/badge/React-18-61DAFB?logo=react)](https://reactjs.org)
 [![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite)](https://vitejs.dev)
 [![Tailwind](https://img.shields.io/badge/Tailwind-3-06B6D4?logo=tailwindcss)](https://tailwindcss.com)
@@ -24,8 +24,8 @@ Schreibe Code, erhalte Echtzeit-Feedback von KI-Modellen und lerne durch interak
 | **👁️ Live Code Preview** | React-Komponenten in einer sicheren Sandbox-Umgebung ausführen |
 | **📚 Aufgaben-Bibliothek** | Fertige Übungen zu React Hooks, Props, CSS, Array-Operationen |
 | **💾 Autosave** | Code wird automatisch im Browser gespeichert |
-| **🔌 Plugin-Architektur** | AI-Provider, Sprachen und Features als Module erweiterbar |
-| **🎨 Theme-Support** | Light, Dark & Rose Theme – erweiterbar über CSS-Variablen |
+| **🔌 Plugin-Architektur** | AI-Provider, Sprachen, Features und Themes als `@harness/*` npm-Packages |
+| **🎨 Theme-Support** | Light, Dark & Rose Theme – erweiterbar als Plugin |
 | **🛡️ Security** | Sandboxed iframe, Content-Security-Policy, API-Keys nur lokal |
 
 ---
@@ -71,37 +71,134 @@ Nicht benötigte Anbieter können im **Einstellungsmenü** (⚙️ oben rechts) 
 
 ---
 
-## 🧩 Plugin-Architektur
+## 🧩 Plugin-Architektur (v2.0)
 
-Das Projekt setzt auf maximale Erweiterbarkeit durch eine modulare Plugin-Architektur:
+Das Projekt verwendet eine **hybride Plugin-Architektur** mit npm-Paketen als Verteilungskanal.
+Jedes Plugin ist ein eigenständiges `@harness/*` Package mit einem `harness`-Manifest in der `package.json`.
+
+### Kern-Prinzip
+
+- **@harness/core** – Nur Plugin Interface, Registry, PluginContext und Scanner
+- **@harness/bundle-default** – Core + empfohlene Plugins (JS, Gemini, Light Theme)
+- **Alles andere** kommt als Plugin: Sprachen, AI-Provider, Themes, Features
+
+### Struktur
 
 ```
-src/modules/
-├── index.js              ← Zentrale Registry (alle Module)
-├── registry.js           ← Enable/Disable System
-├── providers/            ← AI-Anbieter-Module
-│   ├── gemini.js         ← Google Gemini (★ Default)
-│   ├── openrouter.js     ← OpenRouter
-│   ├── ollama.js         ← Ollama (lokal)
-│   └── opencode.js       ← OpenCode (lokal)
-├── languages/            ← Sprach-Module
-│   ├── javascript.jsx    ← JavaScript / React
-│   ├── python.jsx        ← Python (geplant)
-│   └── typescript.jsx    ← TypeScript (geplant)
-├── themes/               ← Theme-Module
-│   ├── light.js          ← Hell (Default)
-│   ├── dark.js           ← Dunkel
-│   └── rose.js           ← Rose
-├── features/             ← Feature-Module
-│   └── index.js          ← Preview, Tasks, Generate
-└── taskdata/             ← Aufgaben-Datensets
-    └── tasks.json
+packages/
+├── core/                      ← Plugin Framework (Registry, Context, Scanner)
+│   ├── src/
+│   │   ├── index.js           ← Exporte: PluginRegistry, PluginContext, scanPlugins
+│   │   ├── types.js           ← JSDoc Typ-Definitionen
+│   │   ├── registry.js        ← Load, Activate, Deactivate, Query
+│   │   ├── context.js         ← PluginContext API für Plugins
+│   │   └── scanner.js         ← Plugin Discovery & Runtime Config
+│   └── package.json
+├── plugin-javascript/         ← Sprach-Plugin
+├── plugin-python/             ← Sprach-Plugin
+├── plugin-typescript/         ← Sprach-Plugin
+├── provider-gemini/           ← AI-Provider Plugin ★ Default
+├── provider-openrouter/       ← AI-Provider Plugin
+├── provider-ollama/           ← AI-Provider Plugin (lokal)
+├── provider-opencode/         ← AI-Provider Plugin (lokal)
+├── theme-light/               ← Theme Plugin
+├── theme-dark/                ← Theme Plugin
+├── theme-rose/                ← Theme Plugin
+├── feature-preview/           ← Feature Plugin (Live Preview)
+├── feature-tasks/             ← Feature Plugin (Aufgaben)
+├── feature-generate/          ← Feature Plugin (KI-Generierung)
+└── bundle-default/            ← Bundle: Core + empfohlene Plugins
 ```
 
-**Neue Module hinzufügen:**
-1. Datei im entsprechenden Ordner erstellen
-2. In der Registry (`index.js`) registrieren
-3. Fertig – UI, Einstellungen und Enable/Disable funktionieren automatisch
+### Plugin Manifest
+
+Jedes Plugin definiert ein `harness`-Feld in seiner `package.json`:
+
+```json
+{
+  "name": "@harness/plugin-python",
+  "harness": {
+    "id": "plugin:python",
+    "type": "language",
+    "contributes": {
+      "languages": ["python"]
+    },
+    "activationEvents": ["onLanguage:python"]
+  }
+}
+```
+
+### Runtime Konfiguration
+
+Plugins werden zur Laufzeit über `localStorage` aktiviert/deaktiviert:
+
+```js
+import { getEnabledPluginIds, togglePlugin, saveEnabledPluginIds } from './modules/plugin-bridge'
+
+// Alle aktivierten Plugins abrufen
+const enabled = getEnabledPluginIds() // [] = alle aktiv
+
+// Plugin togglen
+const updated = togglePlugin('plugin:python')
+
+// Explizit setzen
+saveEnabledPluginIds(['provider:gemini', 'plugin:javascript', 'feature:preview'])
+```
+
+### Neues Plugin erstellen
+
+1. **Verzeichnis erstellen:** `packages/plugin-meinfeature/`
+2. **package.json mit harness-Manifest:**
+   ```json
+   {
+     "name": "@harness/plugin-meinfeature",
+     "version": "1.0.0",
+     "type": "module",
+     "main": "src/index.js",
+     "harness": {
+       "id": "feature:meinfeature",
+       "type": "feature",
+       "contributes": { "features": ["meinfeature"] },
+       "activationEvents": ["onStartupFinished"]
+     }
+   }
+   ```
+3. **Implementierung:** `src/index.js` mit `activate(context)` Funktion
+4. **Registrieren:** In `src/modules/plugin-bridge.js` importieren und zu `DISCOVERED_PLUGINS` hinzufügen
+5. **Vite Alias:** In `vite.config.js` einen resolve-Alias hinzufügen
+6. **Abhängigkeit:** In der root `package.json` als `file:packages/plugin-meinfeature` eintragen
+
+### Plugin Context API
+
+Plugins erhalten beim Aktivieren einen `PluginContext` mit folgenden Methoden:
+
+| Methode | Beschreibung |
+|---------|-------------|
+| `getEditorState(key)` | Editor-Zustand lesen |
+| `setEditorState(key, value)` | Editor-Zustand setzen |
+| `onEvent(name, callback)` | Event abonnieren |
+| `emitEvent(name, payload)` | Event auslösen |
+| `getUI(slotName)` | UI-Slot abrufen |
+| `registerUI(slotName, component)` | UI-Slot registrieren |
+| `registerCommand(name, handler)` | Befehl registrieren |
+| `executeCommand(name, ...args)` | Befehl ausführen |
+| `getConfig(key, default)` | Plugin-Konfig lesen |
+| `setConfig(key, value)` | Plugin-Konfig setzen |
+| `storage` | Persistenter Plugin-Speicher |
+
+### Eigenes Plugin als npm-Package publishen
+
+```bash
+# Im Plugin-Verzeichnis
+cd packages/plugin-meinfeature
+npm publish --access public
+```
+
+Andere Nutzer können es dann installieren:
+
+```bash
+npm install @harness/plugin-meinfeature
+```
 
 ---
 
@@ -117,7 +214,7 @@ src/
 ├── components/                ← UI-Komponenten
 │   ├── ApiKeyModal.jsx        ← KI-Anbieter-Auswahl
 │   ├── CodePreview.jsx        ← Live-Vorschau (Babel + iframe)
-│   ├── ConfigSettingsModal.jsx← Einstellungen (Module aktivieren)
+│   ├── ConfigSettingsModal.jsx← Einstellungen (Plugins aktivieren)
 │   ├── Editor.jsx             ← CodeMirror 6 Editor
 │   ├── EditorToolbar.jsx      ← Toolbar (Preview, Reset, Copy)
 │   ├── GenerateTaskModal.jsx  ← KI-Aufgabengenerierung
@@ -127,12 +224,17 @@ src/
 │   ├── StatusBar.jsx          ← Statusleiste
 │   ├── Toast.jsx              ← Benachrichtigungen
 │   └── TopBar.jsx             ← Obere Aktionsleiste
-└── modules/                   ← Plugin-Architektur
-    ├── providers/             ← AI-Anbieter
-    ├── languages/             ← Sprachen
-    ├── themes/                ← Themes
-    ├── features/              ← Features
-    └── taskdata/              ← Aufgaben
+└── modules/                   ← Plugin Bridge (Migration Layer)
+    ├── index.js               ← Re-Export für Backward Compatibility
+    └── plugin-bridge.js       ← Verbindet @harness/* mit der App
+
+packages/                      ← @harness/* Plugin Packages
+├── core/                      ← Plugin Framework
+├── plugin-*/                  ← Sprach-Plugins
+├── provider-*/                ← AI-Provider Plugins
+├── theme-*/                   ← Theme Plugins
+├── feature-*/                 ← Feature Plugins
+└── bundle-default/            ← Default Bundle
 ```
 
 ---
@@ -142,11 +244,13 @@ src/
 | Bereich | Status | Details |
 |---------|--------|---------|
 | **Multi-Language** | ⚡ In Arbeit | Python (Pyodide), TypeScript, Java/Rust (WASM) |
-| **Plugin-Architektur** | ✅ Implementiert | Provider, Sprachen, Features, Themes als Module |
+| **Plugin-Architektur** | ✅ Implementiert | `@harness/*` npm-Packages mit Plugin-Interface |
+| **Runtime Plugin Config** | ✅ Implementiert | localStorage-basiertes Enable/Disable |
 | **UI & Icon Overhaul** | 🔜 Geplant | Einheitliche Icon-Bibliothek (Lucide), Barebone-Theme |
-| **AI-Modelle** | ✅ Implementiert | Gemini (Default), OpenRouter, Ollama, OpenCode |
+| **AI-Modelle** | ✅ Implementiert | Gemini (Default), OpenRouter, Ollama, OpenCode als Plugins |
 | **Dokumentation** | ⚡ In Arbeit | README, CONTRIBUTING, Architektur-Diagramm, Vercel Demo |
 | **Testing** | 🔜 Geplant | Unit Tests (Vitest), E2E (Playwright), CI/CD (GitHub Actions) |
+| **Plugin Marketplace** | 🔜 Geplant | Community-Plugins als npm-Packages discoverable machen |
 
 ### USPs
 

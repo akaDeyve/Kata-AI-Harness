@@ -1,5 +1,3 @@
-import { ArrowUpDown, ArrowLeftRight, ChevronRight } from "./Icons";
-
 export default function StatusBar({ task, code = "" }) {
   const lineCount = code ? code.split("\n").length : 1;
   const charCount = code ? code.length : 0;

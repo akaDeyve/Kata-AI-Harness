@@ -5,7 +5,6 @@ import {
   Info,
   Clipboard,
   Warning,
-  Sparkle,
   Wrench,
   Robot,
   Lightbulb,

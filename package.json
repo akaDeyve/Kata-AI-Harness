@@ -1,12 +1,34 @@
 {
   "name": "coding-trainer",
   "private": true,
-  "version": "1.0.0",
+  "version": "2.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "harness": {
+    "contributes": {
+      "languages": [
+        "javascript",
+        "python",
+        "typescript"
+      ],
+      "aiProviders": [
+        "gemini",
+        "openrouter",
+        "ollama",
+        "opencode"
+      ],
+      "features": [
+        "preview",
+        "tasks",
+        "generate"
+      ]
+    }
   },
   "dependencies": {
     "@babel/standalone": "^7.29.4",
@@ -18,6 +40,17 @@
     "@codemirror/state": "^6.4.1",
     "@codemirror/theme-one-dark": "^6.1.2",
     "@codemirror/view": "^6.33.0",
+    "@harness/core": "file:packages/core",
+    "@harness/feature-generate": "file:packages/feature-generate",
+    "@harness/feature-preview": "file:packages/feature-preview",
+    "@harness/feature-tasks": "file:packages/feature-tasks",
+    "@harness/plugin-javascript": "file:packages/plugin-javascript",
+    "@harness/plugin-python": "file:packages/plugin-python",
+    "@harness/plugin-typescript": "file:packages/plugin-typescript",
+    "@harness/provider-gemini": "file:packages/provider-gemini",
+    "@harness/provider-ollama": "file:packages/provider-ollama",
+    "@harness/provider-opencode": "file:packages/provider-opencode",
+    "@harness/provider-openrouter": "file:packages/provider-openrouter",
     "@phosphor-icons/react": "^2.1.10",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -28,6 +61,7 @@
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.41",
     "tailwindcss": "^3.4.10",
-    "vite": "^5.4.2"
+    "vite": "^5.4.2",
+    "vitest": "^4.1.5"
   }
 }

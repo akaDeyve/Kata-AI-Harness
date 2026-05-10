@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { PROVIDERS, DEFAULT_PROVIDER } from "../modules/providers";
-import { getEnabledProviders } from "../modules/registry";
+import { PROVIDERS, DEFAULT_PROVIDER, getEnabledProviders } from "../modules";
 import {
   GeminiLogo,
   OpenRouterLogo,

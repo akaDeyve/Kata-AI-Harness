@@ -1,12 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
-  DEFAULT_MODULES,
-  getModuleState,
-  saveModuleSettings,
-  toggleModule,
-  getModulesByType,
-  isFeatureEnabled,
-} from "../modules/registry";
+  saveEnabledPluginIds,
+  togglePlugin,
+} from "../modules/plugin-bridge";
+import { buildPluginState } from "../lib/app-utils";
 import {
   Close,
   Check,
@@ -15,50 +12,47 @@ import {
   Lightning,
   Globe,
   Lightbulb,
-  Star,
-  BookOpen,
 } from "./Icons";
 
 const TABS = [
   { id: "providers", label: "AI Provider", Icon: Plugs },
   { id: "features", label: "Features", Icon: Lightning },
   { id: "languages", label: "Sprachen", Icon: Globe },
-  { id: "taskdata", label: "Aufgaben", Icon: BookOpen },
 ];
 
 export default function ConfigSettingsModal({ onClose, onSave }) {
   const [activeTab, setActiveTab] = useState("providers");
-  const [moduleState, setModuleState] = useState(getModuleState());
+  const [pluginState, setPluginState] = useState(buildPluginState);
   const [hasChanges, setHasChanges] = useState(false);
-  const [originalState, setOriginalState] = useState(getModuleState());
 
-  const modulesByType = getModulesByType();
+  const pluginsByType = getPluginsByTypeFromState(pluginState);
 
-  const handleToggle = (moduleId) => {
-    const newState = toggleModule(moduleId);
-    setModuleState({ ...newState });
+  const handleToggle = (pluginId) => {
+    // Update localStorage via togglePlugin
+    togglePlugin(pluginId);
+    // Read back the fresh state from localStorage
+    const freshState = buildPluginState();
+    setPluginState(freshState);
     setHasChanges(true);
   };
 
   const handleSave = () => {
-    saveModuleSettings(moduleState);
-    if (onSave) onSave(moduleState);
+    // Sync App.jsx with current localStorage state
+    if (onSave) onSave(buildPluginState());
     onClose();
   };
 
   const handleReset = () => {
-    const defaults = {};
-    for (const mod of DEFAULT_MODULES) {
-      defaults[mod.id] = mod.enabled;
-    }
-    setModuleState(defaults);
-    saveModuleSettings(defaults);
+    // Clear disabled list = all enabled
+    saveEnabledPluginIds([]);
+    const freshState = buildPluginState();
+    setPluginState(freshState);
     setHasChanges(true);
   };
 
   const getEnabledCount = (type) => {
-    return modulesByType[type].filter((m) => moduleState[m.id] !== false)
-      .length;
+    const typeMap = { providers: 'providers', features: 'features', languages: 'languages' };
+    return (pluginsByType[typeMap[type]] || []).filter((p) => p.enabled).length;
   };
 
   return (
@@ -98,7 +92,7 @@ export default function ConfigSettingsModal({ onClose, onSave }) {
         <div className="flex border-b border-borderc shrink-0">
           {TABS.map((tab) => {
             const count = getEnabledCount(tab.id);
-            const total = modulesByType[tab.id]?.length || 0;
+            const total = (pluginsByType[tab.id] || []).length;
             return (
               <button
                 key={tab.id}
@@ -130,12 +124,12 @@ export default function ConfigSettingsModal({ onClose, onSave }) {
                 Wähle welche AI-Anbieter verfügbar sein sollen. Mindestens ein
                 Provider muss aktiv sein.
               </p>
-              {modulesByType.providers.map((mod) => (
+              {pluginsByType.providers.map((plugin) => (
                 <ModuleCard
-                  key={mod.id}
-                  module={mod}
-                  enabled={moduleState[mod.id]}
-                  onToggle={() => handleToggle(mod.id)}
+                  key={plugin.id}
+                  module={plugin}
+                  enabled={plugin.enabled}
+                  onToggle={() => handleToggle(plugin.id)}
                 />
               ))}
               <div className="mt-4 p-3 rounded-lg bg-s3 border border-borderc text-xs text-t2">
@@ -159,12 +153,12 @@ export default function ConfigSettingsModal({ onClose, onSave }) {
               <p className="text-xs text-t3 mb-3">
                 Aktiviere oder deaktiviere Hauptfunktionen der Anwendung.
               </p>
-              {modulesByType.features.map((mod) => (
+              {pluginsByType.features.map((plugin) => (
                 <ModuleCard
-                  key={mod.id}
-                  module={mod}
-                  enabled={moduleState[mod.id]}
-                  onToggle={() => handleToggle(mod.id)}
+                  key={plugin.id}
+                  module={plugin}
+                  enabled={plugin.enabled}
+                  onToggle={() => handleToggle(plugin.id)}
                 />
               ))}
             </div>
@@ -176,12 +170,12 @@ export default function ConfigSettingsModal({ onClose, onSave }) {
               <p className="text-xs text-t3 mb-3">
                 Programmiersprachen die im Editor verfügbar sind.
               </p>
-              {modulesByType.languages.map((mod) => (
+              {pluginsByType.languages.map((plugin) => (
                 <ModuleCard
-                  key={mod.id}
-                  module={mod}
-                  enabled={moduleState[mod.id]}
-                  onToggle={() => handleToggle(mod.id)}
+                  key={plugin.id}
+                  module={plugin}
+                  enabled={plugin.enabled}
+                  onToggle={() => handleToggle(plugin.id)}
                 />
               ))}
               <div className="mt-4 p-3 rounded-lg bg-s3 border border-borderc text-xs text-t2">
@@ -193,24 +187,6 @@ export default function ConfigSettingsModal({ onClose, onSave }) {
                   </span>
                 </p>
               </div>
-            </div>
-          )}
-
-          {/* Task Datasets */}
-          {activeTab === "taskdata" && (
-            <div className="space-y-2">
-              <p className="text-xs text-t3 mb-3">
-                Wähle welche Aufgabendatensätze geladen werden sollen. Lege neue
-                .json-Dateien in den Ordner modules/taskdata/.
-              </p>
-              {modulesByType.taskdata?.map((mod) => (
-                <ModuleCard
-                  key={mod.id}
-                  module={mod}
-                  enabled={moduleState[mod.id]}
-                  onToggle={() => handleToggle(mod.id)}
-                />
-              ))}
             </div>
           )}
         </div>
@@ -248,6 +224,51 @@ export default function ConfigSettingsModal({ onClose, onSave }) {
   );
 }
 
+/**
+ * Build plugins-by-type from the plugin state map.
+ * Returns { providers, languages, features } arrays.
+ */
+function getPluginsByTypeFromState(pluginState) {
+  const providers = []
+  const languages = []
+  const features = []
+
+  const labels = {
+    'provider:gemini': 'Gemini',
+    'provider:openrouter': 'OpenRouter',
+    'provider:ollama': 'Ollama',
+    'provider:opencode': 'OpenCode',
+    'plugin:javascript': 'JavaScript',
+    'plugin:python': 'Python',
+    'plugin:typescript': 'TypeScript',
+    'feature:preview': 'Code Preview',
+    'feature:tasks': 'Task Datasets',
+    'feature:generate': 'KI-Aufgaben Generierung',
+  }
+
+  const descriptions = {
+    'provider:gemini': 'Google Gemini – kostenloser API-Key',
+    'provider:openrouter': 'OpenRouter – Multi-Model Gateway',
+    'provider:ollama': 'Ollama – lokal, kein API-Key nötig',
+    'provider:opencode': 'OpenCode – lokal, kein API-Key nötig',
+    'plugin:javascript': 'JavaScript / React Unterstützung',
+    'plugin:python': 'Python Unterstützung',
+    'plugin:typescript': 'TypeScript Unterstützung',
+    'feature:preview': 'Live-Vorschau von React/JSX-Code',
+    'feature:tasks': 'Vordefinierte Programmieraufgaben',
+    'feature:generate': 'Neue Aufgaben per KI generieren',
+  }
+
+  for (const [id, enabled] of Object.entries(pluginState)) {
+    const entry = { id, name: labels[id] || id, description: descriptions[id] || '', enabled }
+    if (id.startsWith('provider:')) providers.push(entry)
+    else if (id.startsWith('plugin:')) languages.push(entry)
+    else if (id.startsWith('feature:')) features.push(entry)
+  }
+
+  return { providers, languages, features }
+}
+
 function ModuleCard({ module, enabled, onToggle }) {
   return (
     <div
@@ -256,11 +277,13 @@ function ModuleCard({ module, enabled, onToggle }) {
       }`}
     >
       <div className="flex items-center gap-3">
-        <span className="text-xl">
-          {typeof module.icon === "string" ? (
+        <span className="text-xl w-6 h-6 flex items-center justify-center text-t3">
+          {typeof module.icon === "function" && module.icon ? (
+            <module.icon size={20} />
+          ) : typeof module.icon === "string" && module.icon ? (
             module.icon
           ) : (
-            <module.icon size={20} />
+            <span className="w-5 h-5 rounded bg-s3 inline-block" />
           )}
         </span>
         <div>

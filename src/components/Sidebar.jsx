@@ -73,7 +73,7 @@ export default function Sidebar({
                 className={`w-1 h-1 rounded-full flex-shrink-0 ${selectedTaskId === task.id ? "bg-text" : "bg-t3"}`}
               />
               <span className="text-sm truncate flex-1 leading-snug">
-                {task.name}
+                {task.title || task.name}
               </span>
             </button>
           ))}

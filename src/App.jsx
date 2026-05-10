@@ -10,31 +10,16 @@ import ApiKeyModal from './components/ApiKeyModal'
 import GenerateTaskModal from './components/GenerateTaskModal'
 import Toast from './components/Toast'
 import ConfigSettingsModal from './components/ConfigSettingsModal'
-import { DEFAULT_PROVIDER, loadTheme, applyTheme } from './modules'
-import { callAI, safeJsonParse } from './lib/api'
-import { getModuleState, getEnabledProviders, getEnabledDatasets } from './modules/registry'
-import { getTasksForDatasets } from './modules/taskdata'
-
-const STORAGE_PREFIX = 'code_trainer_code_'
-const STORAGE_TASKS_KEY = 'code_trainer_tasks'
-
-function loadSavedCode(taskId) {
-  try { return localStorage.getItem(`${STORAGE_PREFIX}${taskId}`) } catch { return null }
-}
-function saveCodeToStorage(taskId, code) {
-  try { localStorage.setItem(`${STORAGE_PREFIX}${taskId}`, code) } catch { }
-}
-
-function getInitialTasks() {
-  const enabled = getEnabledDatasets()
-  const data = getTasksForDatasets(enabled)
-  const saved = localStorage.getItem('code_trainer_tasks')
-  if (saved) {
-    const parsed = safeJsonParse(saved)
-    if (Array.isArray(parsed)) return parsed
-  }
-  return data
-}
+import { getEnabledProviders } from './modules'
+import { callAI, loadApiConfig, storeApiConfig } from './lib/api'
+import { FEEDBACK_PROMPT, CORRECTION_PROMPT } from './lib/prompts'
+import {
+  buildPluginState,
+  getEnabledProviderIds,
+  loadSavedCode,
+  saveCodeToStorage,
+  getInitialTasks,
+} from './lib/app-utils'
 
 export default function App() {
   const [tasks, setTasks] = useState(getInitialTasks)
@@ -53,8 +38,8 @@ export default function App() {
   const [showApiModal, setShowApiModal] = useState(false)
   const [showGenerateModal, setShowGenerateModal] = useState(false)
   const [showSettingsModal, setShowSettingsModal] = useState(false)
-  const [moduleState, setModuleState] = useState(getModuleState)
-  const [enabledProviderIds, setEnabledProviderIds] = useState(getEnabledProviders)
+  const [moduleState, setModuleState] = useState(buildPluginState)
+  const [enabledProviderIds, setEnabledProviderIds] = useState(getEnabledProviderIds)
   const [showPreview, setShowPreview] = useState(false)
   const [previewSplit, setPreviewSplit] = useState(50) // percentage for split view
   const splitViewRef = useRef(null)
@@ -65,12 +50,7 @@ export default function App() {
   const [sidebarWidth, setSidebarWidth] = useState(220)
   const [rightPanelWidth, setRightPanelWidth] = useState(260)
 
-  const [apiConfig, setApiConfig] = useState(() => ({
-    key: localStorage.getItem('api_key') || '',
-    baseUrl: localStorage.getItem('api_base_url') || '',
-    model: localStorage.getItem('api_model') || '',
-    apiType: localStorage.getItem('api_type') || DEFAULT_PROVIDER,
-  }))
+  const [apiConfig, setApiConfig] = useState(() => loadApiConfig())
 
   const selectedTask = tasks.find(t => t.id === selectedTaskId)
 
@@ -106,25 +86,17 @@ export default function App() {
     if (selectedTaskId && code) saveCodeToStorage(selectedTaskId, code)
   }, [code, selectedTaskId])
 
-  // Load saved theme on mount
-  useEffect(() => {
-    const savedTheme = loadTheme()
-    applyTheme(savedTheme)
-  }, [])
-
   const handleSaveApiConfig = useCallback((config) => {
     setApiConfig(config)
-    localStorage.setItem('api_key', config.key)
-    localStorage.setItem('api_base_url', config.baseUrl)
-    localStorage.setItem('api_model', config.model)
-    localStorage.setItem('api_type', config.apiType)
+    storeApiConfig(config)
     setShowApiModal(false)
   }, [])
 
   const handleModuleSettingsChange = useCallback(() => {
-    setModuleState(getModuleState())
-    setEnabledProviderIds(getEnabledProviders())
-    if (!getModuleState()['feature:preview']) {
+    const state = buildPluginState()
+    setModuleState(state)
+    setEnabledProviderIds(getEnabledProviderIds())
+    if (state['feature:preview'] === false) {
       setShowPreview(false)
     }
   }, [])
@@ -134,13 +106,8 @@ export default function App() {
     if ((apiConfig.apiType !== 'opencode' && !apiConfig.key) || !selectedTask) { setShowApiModal(true); return }
     setIsLoading(true); setFeedback(null)
     try {
-      const system = `Du bist ein erfahrener Coding-Mentor. Bewerte den Code basierend auf der Aufgabenstellung.
-Antworte NUR auf Deutsch.
-Gib zuerst eine Punktzahl von 1-10 im Format "Score: X/10".
-Gib dann eine kurze, konstruktive Bewertung (3-5 Saetze).
-Wenn du Code-Beispiele zeigst, nutze Markdown-Codebloecke.`
       const user = `Aufgabe: ${selectedTask.title}\nBeschreibung: ${selectedTask.description}\n\nMein Code:\n\`\`\`\n${code}\n\`\`\`\n\nBitte bewerte meinen Code.`
-      const content = await callAI(apiConfig, system, user)
+      const content = await callAI(apiConfig, FEEDBACK_PROMPT, user)
       const scoreMatch = content.match(/Score:\s*(\d+)\/10/i)
       setFeedback({ content, score: scoreMatch ? parseInt(scoreMatch[1]) : null })
     } catch (err) { setFeedback({ content: `Fehler: ${err.message}`, score: null, isError: true }) }
@@ -151,14 +118,8 @@ Wenn du Code-Beispiele zeigst, nutze Markdown-Codebloecke.`
     if ((apiConfig.apiType !== 'opencode' && !apiConfig.key) || !selectedTask) { setShowApiModal(true); return }
     setIsCorrectionLoading(true); setCorrection(null)
     try {
-      const system = `Du bist ein Coding-Mentor. Verbessere den Code des Nutzers.
-Antworte NUR auf Deutsch.
-1. Korrigiere Fehler
-2. Verbessere Code-Qualitaet
-3. Erkläre kurz (2-3 Saetze), was verbessert wurde
-4. Zeige verbesserten Code in Markdown-Codeblock`
       const user = `Aufgabe: ${selectedTask.title}\nBeschreibung: ${selectedTask.description}\n\nMein Code:\n\`\`\`\n${code}\n\`\`\`\n\nBitte zeige die korrigierte Version.`
-      const content = await callAI(apiConfig, system, user)
+      const content = await callAI(apiConfig, CORRECTION_PROMPT, user)
       setCorrection({ content })
     } catch (err) { setCorrection({ content: `Fehler: ${err.message}`, isError: true }) }
     finally { setIsCorrectionLoading(false) }
