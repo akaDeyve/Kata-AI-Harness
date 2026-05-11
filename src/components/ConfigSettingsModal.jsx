@@ -1,59 +1,48 @@
-import { useState } from "react";
-import {
-  saveEnabledPluginIds,
-  togglePlugin,
-} from "../modules/plugin-bridge";
-import { buildPluginState } from "../lib/app-utils";
-import {
-  Close,
-  Check,
-  Settings,
-  Plugs,
-  Lightning,
-  Globe,
-  Lightbulb,
-} from "./Icons";
+import { useState } from 'react'
+import { saveEnabledPluginIds, togglePlugin } from '../modules/plugin-bridge'
+import { buildPluginState } from '../lib/app-utils'
+import { Close, Check, Settings, Plugs, Lightning, Globe, Lightbulb, Star } from './Icons'
 
 const TABS = [
-  { id: "providers", label: "AI Provider", Icon: Plugs },
-  { id: "features", label: "Features", Icon: Lightning },
-  { id: "languages", label: "Sprachen", Icon: Globe },
-];
+  { id: 'providers', label: 'AI Provider', Icon: Plugs },
+  { id: 'features', label: 'Features', Icon: Lightning },
+  { id: 'languages', label: 'Sprachen', Icon: Globe },
+]
 
 export default function ConfigSettingsModal({ onClose, onSave }) {
-  const [activeTab, setActiveTab] = useState("providers");
-  const [pluginState, setPluginState] = useState(buildPluginState);
-  const [hasChanges, setHasChanges] = useState(false);
+  const [activeTab, setActiveTab] = useState('providers')
+  const [pluginState, setPluginState] = useState(buildPluginState)
+  const [hasChanges, setHasChanges] = useState(false)
 
-  const pluginsByType = getPluginsByTypeFromState(pluginState);
+  const pluginsByType = getPluginsByTypeFromState(pluginState)
 
   const handleToggle = (pluginId) => {
     // Update localStorage via togglePlugin
-    togglePlugin(pluginId);
+    togglePlugin(pluginId)
     // Read back the fresh state from localStorage
-    const freshState = buildPluginState();
-    setPluginState(freshState);
-    setHasChanges(true);
-  };
+    const freshState = buildPluginState()
+    setPluginState(freshState)
+    setHasChanges(true)
+  }
 
   const handleSave = () => {
     // Sync App.jsx with current localStorage state
-    if (onSave) onSave(buildPluginState());
-    onClose();
-  };
+    if (onSave) onSave(buildPluginState())
+    onClose()
+  }
 
   const handleReset = () => {
     // Clear disabled list = all enabled
-    saveEnabledPluginIds([]);
-    const freshState = buildPluginState();
-    setPluginState(freshState);
-    setHasChanges(true);
-  };
+    saveEnabledPluginIds([])
+    const freshState = buildPluginState()
+    setPluginState(freshState)
+    setHasChanges(true)
+  }
 
   const getEnabledCount = (type) => {
-    const typeMap = { providers: 'providers', features: 'features', languages: 'languages' };
-    return (pluginsByType[typeMap[type]] || []).filter((p) => p.enabled).length;
-  };
+    const typeMap = { providers: 'providers', features: 'features', languages: 'languages' }
+    return (pluginsByType[typeMap[type]] || []).filter((p) => p.enabled).length
+  }
 
   return (
     <div
@@ -71,19 +60,11 @@ export default function ConfigSettingsModal({ onClose, onSave }) {
               <Settings size={18} />
             </div>
             <div>
-              <h3 className="text-base font-semibold text-text">
-                Einstellungen
-              </h3>
-              <p className="text-xs text-t2">
-                Module aktivieren oder deaktivieren
-              </p>
+              <h3 className="text-base font-semibold text-text">Einstellungen</h3>
+              <p className="text-xs text-t2">Module aktivieren oder deaktivieren</p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="text-t2 hover:text-text p-0.5"
-            aria-label="Schließen"
-          >
+          <button onClick={onClose} className="text-t2 hover:text-text p-0.5" aria-label="Schließen">
             <Close size={18} />
           </button>
         </div>
@@ -91,16 +72,16 @@ export default function ConfigSettingsModal({ onClose, onSave }) {
         {/* Tabs */}
         <div className="flex border-b border-borderc shrink-0">
           {TABS.map((tab) => {
-            const count = getEnabledCount(tab.id);
-            const total = (pluginsByType[tab.id] || []).length;
+            const count = getEnabledCount(tab.id)
+            const total = (pluginsByType[tab.id] || []).length
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`px-4 py-3 text-sm font-medium border-b-2 flex items-center gap-2 ${
                   activeTab === tab.id
-                    ? "border-accent text-text bg-s2"
-                    : "border-transparent text-t2 hover:text-text hover:bg-s3"
+                    ? 'border-accent text-text bg-s2'
+                    : 'border-transparent text-t2 hover:text-text hover:bg-s3'
                 }`}
               >
                 <span>
@@ -111,18 +92,17 @@ export default function ConfigSettingsModal({ onClose, onSave }) {
                   {count}/{total}
                 </span>
               </button>
-            );
+            )
           })}
         </div>
 
         {/* Module list */}
         <div className="flex-1 overflow-y-auto p-5">
           {/* AI Providers */}
-          {activeTab === "providers" && (
+          {activeTab === 'providers' && (
             <div className="space-y-2">
               <p className="text-xs text-t3 mb-3">
-                Wähle welche AI-Anbieter verfügbar sein sollen. Mindestens ein
-                Provider muss aktiv sein.
+                Wähle welche AI-Anbieter verfügbar sein sollen. Mindestens ein Provider muss aktiv sein.
               </p>
               {pluginsByType.providers.map((plugin) => (
                 <ModuleCard
@@ -134,25 +114,20 @@ export default function ConfigSettingsModal({ onClose, onSave }) {
               ))}
               <div className="mt-4 p-3 rounded-lg bg-s3 border border-borderc text-xs text-t2">
                 <p className="mb-1 flex items-start gap-1">
-                  <Lightbulb size={14} className="shrink-0 mt-0.5" />{" "}
+                  <Lightbulb size={14} className="shrink-0 mt-0.5" />{' '}
                   <span>
-                    <strong>Tipp:</strong> Gemini bietet einen kostenlosen
-                    API-Key und ist als Standard empfohlen.
+                    <strong>Tipp:</strong> Gemini bietet einen kostenlosen API-Key und ist als Standard empfohlen.
                   </span>
                 </p>
-                <p>
-                  Lokale Provider (Ollama, OpenCode) benötigen keinen API-Key.
-                </p>
+                <p>Lokale Provider (Ollama, OpenCode) benötigen keinen API-Key.</p>
               </div>
             </div>
           )}
 
           {/* Features */}
-          {activeTab === "features" && (
+          {activeTab === 'features' && (
             <div className="space-y-2">
-              <p className="text-xs text-t3 mb-3">
-                Aktiviere oder deaktiviere Hauptfunktionen der Anwendung.
-              </p>
+              <p className="text-xs text-t3 mb-3">Aktiviere oder deaktiviere Hauptfunktionen der Anwendung.</p>
               {pluginsByType.features.map((plugin) => (
                 <ModuleCard
                   key={plugin.id}
@@ -165,11 +140,9 @@ export default function ConfigSettingsModal({ onClose, onSave }) {
           )}
 
           {/* Languages */}
-          {activeTab === "languages" && (
+          {activeTab === 'languages' && (
             <div className="space-y-2">
-              <p className="text-xs text-t3 mb-3">
-                Programmiersprachen die im Editor verfügbar sind.
-              </p>
+              <p className="text-xs text-t3 mb-3">Programmiersprachen die im Editor verfügbar sind.</p>
               {pluginsByType.languages.map((plugin) => (
                 <ModuleCard
                   key={plugin.id}
@@ -180,10 +153,9 @@ export default function ConfigSettingsModal({ onClose, onSave }) {
               ))}
               <div className="mt-4 p-3 rounded-lg bg-s3 border border-borderc text-xs text-t2">
                 <p className="flex items-start gap-1">
-                  <Lightbulb size={14} className="shrink-0 mt-0.5" />{" "}
+                  <Lightbulb size={14} className="shrink-0 mt-0.5" />{' '}
                   <span>
-                    <strong>Hinweis:</strong> Deaktivierte Sprachen werden im
-                    Editor nicht mehr angezeigt.
+                    <strong>Hinweis:</strong> Deaktivierte Sprachen werden im Editor nicht mehr angezeigt.
                   </span>
                 </p>
               </div>
@@ -193,10 +165,7 @@ export default function ConfigSettingsModal({ onClose, onSave }) {
 
         {/* Footer */}
         <div className="flex items-center justify-between px-5 py-3 border-t border-borderc shrink-0">
-          <button
-            onClick={handleReset}
-            className="text-xs text-t3 hover:text-text transition-colors"
-          >
+          <button onClick={handleReset} className="text-xs text-t3 hover:text-text transition-colors">
             Auf Standard zurücksetzen
           </button>
           <div className="flex items-center gap-3">
@@ -210,9 +179,7 @@ export default function ConfigSettingsModal({ onClose, onSave }) {
               onClick={handleSave}
               disabled={!hasChanges}
               className={`px-5 py-2 text-sm font-medium rounded-lg flex items-center gap-2 ${
-                hasChanges
-                  ? "bg-accent text-white hover:bg-accent/90"
-                  : "bg-s3 text-t3 cursor-not-allowed"
+                hasChanges ? 'bg-accent text-white hover:bg-accent/90' : 'bg-s3 text-t3 cursor-not-allowed'
               }`}
             >
               <Check size={14} /> Speichern
@@ -221,7 +188,7 @@ export default function ConfigSettingsModal({ onClose, onSave }) {
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 /**
@@ -273,23 +240,14 @@ function ModuleCard({ module, enabled, onToggle }) {
   return (
     <div
       className={`flex items-center justify-between p-3.5 rounded-lg border ${
-        enabled ? "bg-s2 border-borderc" : "bg-s3/50 border-border2 opacity-60"
+        enabled ? 'bg-s2 border-borderc' : 'bg-s3/50 border-border2 opacity-60'
       }`}
     >
       <div className="flex items-center gap-3">
-        <span className="text-xl w-6 h-6 flex items-center justify-center text-t3">
-          {typeof module.icon === "function" && module.icon ? (
-            <module.icon size={20} />
-          ) : typeof module.icon === "string" && module.icon ? (
-            module.icon
-          ) : (
-            <span className="w-5 h-5 rounded bg-s3 inline-block" />
-          )}
-        </span>
         <div>
           <div className="text-sm font-medium text-text flex items-center gap-2">
             {module.name}
-            {module.id === "provider:gemini" && (
+            {module.id === 'provider:gemini' && (
               <span className="text-[10px] font-semibold bg-accent/20 text-accent px-1.5 py-0.5 rounded inline-flex items-center gap-0.5">
                 <Star size={10} /> EMPFOHLEN
               </span>
@@ -300,16 +258,14 @@ function ModuleCard({ module, enabled, onToggle }) {
       </div>
       <button
         onClick={onToggle}
-        className={`relative w-11 h-6 rounded-full ${
-          enabled ? "bg-accent" : "bg-s3 border border-borderc"
-        }`}
+        className={`relative w-11 h-6 rounded-full ${enabled ? 'bg-accent' : 'bg-s3 border border-borderc'}`}
       >
         <span
           className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform duration-200 ${
-            enabled ? "translate-x-5" : "translate-x-0"
+            enabled ? 'translate-x-5' : 'translate-x-0'
           }`}
         />
       </button>
     </div>
-  );
+  )
 }

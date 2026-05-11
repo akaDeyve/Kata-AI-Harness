@@ -23,6 +23,7 @@ export {
   Plugs,
   Lightning,
   Globe,
+  Star,
   CaretRight,
   CaretLeft,
-} from "@phosphor-icons/react";
+} from '@phosphor-icons/react'

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { EditorState } from '@codemirror/state'
+import { EditorState, StateEffect } from '@codemirror/state'
 import {
   EditorView,
   keymap,
@@ -42,11 +42,12 @@ export default function Editor({ code, onChange, language = 'javascript' }) {
   const editorRef = useRef(null)
   const viewRef = useRef(null)
   const isUpdatingRef = useRef(false)
+  const updateListenerRef = useRef(null)
 
   useEffect(() => {
     if (!editorRef.current) return
 
-    const updateListener = EditorView.updateListener.of((update) => {
+    updateListenerRef.current = EditorView.updateListener.of((update) => {
       if (update.docChanged && !isUpdatingRef.current) {
         onChange(update.state.doc.toString())
       }
@@ -170,7 +171,7 @@ export default function Editor({ code, onChange, language = 'javascript' }) {
           indentWithTab,
         ]),
 
-        updateListener,
+        updateListenerRef.current,
       ],
     })
 
@@ -184,7 +185,7 @@ export default function Editor({ code, onChange, language = 'javascript' }) {
     const view = viewRef.current
     if (!view) return
     view.dispatch({
-      effects: EditorState.reconfigure.of([
+      effects: StateEffect.reconfigure.of([
         lineNumbers(),
         highlightActiveLine(),
         highlightActiveLineGutter(),
@@ -280,7 +281,7 @@ export default function Editor({ code, onChange, language = 'javascript' }) {
           ...completionKeymap,
           indentWithTab,
         ]),
-        updateListener,
+        updateListenerRef.current,
       ]),
     })
   }, [language])

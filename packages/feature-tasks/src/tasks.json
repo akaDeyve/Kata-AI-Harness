@@ -1,50 +1,98 @@
 [
   {
-    "id": "react-001",
-    "title": "Hello React",
-    "description": "Erstelle eine React-Komponente, die 'Hello World' anzeigt.",
-    "starter": "export default function App() {\n  return <h1>Hello World!</h1>;\n}",
-    "dataset": "react-hooks",
+    "id": 1,
+    "title": "useState – Zustand in Komponenten verwalten",
+    "description": "Erstelle einen interaktiven Counter mit useState. Der Counter soll einen Anfangswert von 0 haben und Buttons zum Erhöhen, Verringern und Zurücksetzen bereitstellen. Achte darauf, dass der Wert nicht unter 0 fallen kann (mindestens 0). Nutze die funktionale Update-Form von setState für sichere Updates.",
+    "starter": "function Counter() {\n  const [count, setCount] = React.useState(0);\n\n  const increment = () => {\n    // Dein Code hier\n  };\n\n  const decrement = () => {\n    // Dein Code hier – nicht unter 0\n  };\n\n  const reset = () => {\n    // Dein Code hier\n  };\n\n  return (\n    <div style={{ textAlign: 'center', padding: '2rem' }}>\n      <h2>Counter: {count}</h2>\n      <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>\n        <button onClick={decrement}>−</button>\n        <button onClick={reset}>Reset</button>\n        <button onClick={increment}>+</button>\n      </div>\n    </div>\n  );\n}",
+    "dataset": {},
     "language": "javascript"
   },
   {
-    "id": "react-002",
-    "title": "useState Counter",
-    "description": "Erstelle einen Counter mit useState. Zwei Buttons: +1 und -1.",
-    "starter": "import { useState } from 'react';\n\nexport default function Counter() {\n  const [count, setCount] = useState(0);\n\n  return (\n    <div>\n      <h2>Counter: {count}</h2>\n      <button onClick={() => setCount(c => c + 1)}>+</button>\n      <button onClick={() => setCount(c => c - 1)}>-</button>\n    </div>\n  );\n}",
-    "dataset": "react-hooks",
+    "id": 2,
+    "title": "useEffect – Side Effects und Daten laden",
+    "description": "Schreibe eine Komponente, die mit useEffect Daten von einer API lädt. Zeige einen Lade-Spinner während des Ladens, eine Fehlermeldung bei Fehlschlag und die Daten nach erfolgreichem Laden. Nutze async/await innerhalb von useEffect und cleanup, falls die Komponente unmounted wird.",
+    "starter": "function UserList() {\n  const [users, setUsers] = React.useState([]);\n  const [isLoading, setIsLoading] = React.useState(true);\n  const [error, setError] = React.useState(null);\n\n  React.useEffect(() => {\n    let cancelled = false;\n\n    const fetchUsers = async () => {\n      try {\n        const res = await fetch('https://jsonplaceholder.typicode.com/users');\n        if (!res.ok) throw new Error('Netzwerkfehler');\n        const data = await res.json();\n        // Dein Code hier – setze nur wenn nicht cancelled\n      } catch (err) {\n        // Dein Code hier – setze Fehler\n      } finally {\n        // Dein Code hier – Ladezustand beenden\n      }\n    };\n\n    fetchUsers();\n    return () => { cancelled = true; };\n  }, []);\n\n  if (isLoading) return <div>Lade Benutzer...</div>;\n  if (error) return <div style={{ color: 'red' }}>Fehler: {error}</div>;\n\n  return (\n    <ul>\n      {users.map(user => (\n        <li key={user.id}>{user.name} – {user.email}</li>\n      ))}\n    </ul>\n  );\n}",
+    "dataset": {},
     "language": "javascript"
   },
   {
-    "id": "react-003",
-    "title": "useEffect Timer",
-    "description": "Erstelle einen Timer der jede Sekunde hochzählt. Nutze useEffect.",
-    "starter": "import { useState, useEffect } from 'react';\n\nexport default function Timer() {\n  const [seconds, setSeconds] = useState(0);\n\n  // TODO: useEffect hinzufügen\n\n  return <h2>{seconds}s</h2>;\n}",
-    "dataset": "react-hooks",
+    "id": 3,
+    "title": "useContext – Globalen Zustand bereitstellen",
+    "description": "Erstelle einen Theme-Context (hell/dunkel) mit React.createContext und useContext. Implementiere einen ThemeProvider, der den Theme-Zustand bereitstellt, und eine Komponente, die mit useContext darauf zugreift und zwischen hell und dunkel umschalten kann. Der Theme-Wechsel soll sofort sichtbar sein.",
+    "starter": "// 1. ThemeContext erstellen\nconst ThemeContext = React.createContext();\n\n// 2. ThemeProvider-Komponente\nfunction ThemeProvider({ children }) {\n  const [theme, setTheme] = React.useState('hell');\n\n  const toggleTheme = () => {\n    // Dein Code hier – wechsle zwischen 'hell' und 'dunkel'\n  };\n\n  return (\n    <ThemeContext.Provider value={{ theme, toggleTheme }}>\n      {children}\n    </ThemeContext.Provider>\n  );\n}\n\n// 3. Verbrauchende Komponente\nfunction ThemeButton() {\n  // Dein Code hier – nutze useContext\n\n  return (\n    <button onClick={toggleTheme}>\n      Aktuelles Theme: {theme}\n    </button>\n  );\n}\n\n// 4. Hauptkomponente\nfunction App() {\n  return (\n    <ThemeProvider>\n      <div style={{\n        padding: '2rem',\n        minHeight: '100vh',\n        background: theme === 'dunkel' ? '#333' : '#fff',\n        color: theme === 'dunkel' ? '#fff' : '#333'\n      }}>\n        <ThemeButton />\n      </div>\n    </ThemeProvider>\n  );\n}",
+    "dataset": {},
     "language": "javascript"
   },
   {
-    "id": "css-001",
-    "title": "Farbige Box",
-    "description": "Erstelle eine div-Box mit Hintergrundfarbe, Rundung und Schatten.",
-    "starter": "export default function ColoredBox() {\n  return (\n    <div style={{\n      width: 200,\n      height: 100,\n      // TODO: backgroundColor, borderRadius, boxShadow\n    }}>\n      <p>Ich bin eine Box!</p>\n    </div>\n  );\n}",
-    "dataset": "css-basics",
+    "id": 4,
+    "title": "useRef – DOM-Referenzen und mutable Werte",
+    "description": "Erstelle ein Formular, bei dem ein Input-Feld automatisch fokussiert wird, sobald die Komponente mounted. Nutze useRef, um eine Referenz auf das DOM-Element zu erhalten. Zusätzlich soll ein Button den Fokus jederzeit auf das Input-Feld zurücksetzen können. Zeige auch, wie useRef einen Wert über Render hinweg behalten kann (z.B. Render-Zähler).",
+    "starter": "function FocusForm() {\n  const inputRef = React.useRef(null);\n  const renderCount = React.useRef(0);\n\n  // Zähle Renders (nur für Demo – kein setState nötig!)\n  renderCount.current += 1;\n\n  React.useEffect(() => {\n    // Dein Code hier – fokussiere beim Mounten\n  }, []);\n\n  const handleFocus = () => {\n    // Dein Code hier – setze Fokus per Button\n  };\n\n  return (\n    <div style={{ padding: '2rem' }}>\n      <h2>useRef Beispiel</h2>\n      <input\n        ref={inputRef}\n        type=\"text\"\n        placeholder=\"Dieses Feld wird automatisch fokussiert\"\n        style={{ padding: '0.5rem', width: '300px' }}\n      />\n      <button onClick={handleFocus} style={{ marginLeft: '0.5rem' }}>\n        Fokus setzen\n      </button>\n      <p style={{ marginTop: '1rem', color: '#888' }}>\n        Diese Komponente wurde {renderCount.current}x gerendert\n      </p>\n    </div>\n  );\n}",
+    "dataset": {},
     "language": "javascript"
   },
   {
-    "id": "js-001",
-    "title": "Array Filter",
-    "description": "Filtere alle geraden Zahlen aus einem Array.",
-    "starter": "const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];\n\n// TODO: filter() nutzen um nur gerade Zahlen zu behalten\nconst even = numbers.filter(/* ... */);\n\nconsole.log(even); // [2, 4, 6, 8, 10]",
-    "dataset": "array-ops",
+    "id": 5,
+    "title": "useReducer – Komplexen Zustand mit Reducer verwalten",
+    "description": "Baue eine Todo-Liste mit useReducer. Der State soll ein Array von Todos enthalten, jedes mit id, text und done-Status. Implementiere Aktionen für: ADD_TODO (neues Todo hinzufügen), TOGGLE_TODO (erledigt/nicht erledigt umschalten), DELETE_TODO (Todo löschen) und CLEAR_DONE (alle erledigten löschen). Der Reducer soll diese Aktionen verarbeiten.",
+    "starter": "const initialState = {\n  todos: [\n    { id: 1, text: 'useReducer verstehen', done: false },\n    { id: 2, text: 'Reducer schreiben', done: false },\n  ]\n};\n\nfunction todoReducer(state, action) {\n  switch (action.type) {\n    case 'ADD_TODO':\n      // Dein Code hier\n    case 'TOGGLE_TODO':\n      // Dein Code hier – toggle done-Status\n    case 'DELETE_TODO':\n      // Dein Code hier – filtere das Todo raus\n    case 'CLEAR_DONE':\n      // Dein Code hier – behalte nur nicht-erledigte\n    default:\n      return state;\n  }\n}\n\nfunction TodoApp() {\n  const [state, dispatch] = React.useReducer(todoReducer, initialState);\n  const [input, setInput] = React.useState('');\n\n  const addTodo = () => {\n    if (input.trim()) {\n      dispatch({ type: 'ADD_TODO', payload: input });\n      setInput('');\n    }\n  };\n\n  return (\n    <div style={{ padding: '2rem', maxWidth: '400px' }}>\n      <h2>Todo-Liste (useReducer)</h2>\n      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>\n        <input\n          value={input}\n          onChange={e => setInput(e.target.value)}\n          placeholder=\"Neues Todo...\"\n          onKeyDown={e => e.key === 'Enter' && addTodo()}\n        />\n        <button onClick={addTodo}>Hinzufügen</button>\n      </div>\n      <ul>\n        {state.todos.map(todo => (\n          <li key={todo.id} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>\n            <span\n              onClick={() => dispatch({ type: 'TOGGLE_TODO', payload: todo.id })}\n              style={{\n                textDecoration: todo.done ? 'line-through' : 'none',\n                cursor: 'pointer', flex: 1\n              }}\n            >\n              {todo.text}\n            </span>\n            <button onClick={() => dispatch({ type: 'DELETE_TODO', payload: todo.id })}>\n              ❌\n            </button>\n          </li>\n        ))}\n      </ul>\n      <button onClick={() => dispatch({ type: 'CLEAR_DONE' })}>\n        Erledigte löschen\n      </button>\n    </div>\n  );\n}",
+    "dataset": {},
     "language": "javascript"
   },
   {
-    "id": "js-002",
-    "title": "Array Map",
-    "description": "Verdoppele jede Zahl in einem Array mit map().",
-    "starter": "const numbers = [1, 2, 3, 4, 5];\n\n// TODO: map() nutzen um jede Zahl zu verdoppeln\nconst doubled = numbers.map(/* ... */);\n\nconsole.log(doubled); // [2, 4, 6, 8, 10]",
-    "dataset": "array-ops",
+    "id": 6,
+    "title": "useMemo – Teure Berechnungen optimieren",
+    "description": "Erstelle eine Komponente mit einer teuren Berechnung (z.B. Primzahlen-Suche), die nur dann neu berechnet wird, wenn sich die Abhängigkeiten ändern. Nutze useMemo, um die Performance zu optimieren. Zeige einen unabhängigen Counter, der demonstriert, dass die Berechnung nicht bei jedem Render neu läuft.",
+    "starter": "// Simuliere eine teure Berechnung\nfunction expensiveCalculation(limit) {\n  console.log('Teure Berechnung läuft...');\n  let start = Date.now();\n  while (Date.now() - start < 500) {\n    // Blockiere für 500ms (simuliert schwere Arbeit)\n  }\n  return Array.from({ length: limit }, (_, i) => i + 1).filter(n => {\n    for (let i = 2; i <= Math.sqrt(n); i++) {\n      if (n % i === 0) return false;\n    }\n    return n > 1;\n  });\n}\n\nfunction PerformanceDemo() {\n  const [limit, setLimit] = React.useState(100);\n  const [count, setCount] = React.useState(0);\n\n  // OPTIMIERT: Nutze useMemo, damit die Berechnung nur bei limit-Änderung läuft\n  // const primes = expensiveCalculation(limit);\n  // Dein Code hier – mit useMemo\n\n  return (\n    <div style={{ padding: '2rem' }}>\n      <h2>useMemo – Performance-Optimierung</h2>\n\n      <div style={{ marginBottom: '1rem' }}>\n        <label>Limit: {limit}</label>\n        <input\n          type=\"range\"\n          min={10}\n          max={500}\n          value={limit}\n          onChange={e => setLimit(Number(e.target.value))}\n        />\n      </div>\n\n      <p>Gefundene Primzahlen: {primes.length}</p>\n      <p style={{ fontSize: '0.8rem', color: '#888' }}>\n        Erste 5: {primes.slice(0, 5).join(', ')}...\n      </p>\n\n      <div style={{ marginTop: '1rem', padding: '1rem', borderTop: '1px solid #ccc' }}>\n        <p>Unabhängiger Counter: {count}</p>\n        <button onClick={() => setCount(c => c + 1)}>\n          +1 (löst keinen Re-Render der Berechnung aus mit useMemo)\n        </button>\n      </div>\n    </div>\n  );\n}",
+    "dataset": {},
+    "language": "javascript"
+  },
+  {
+    "id": 7,
+    "title": "Prop Drilling – Daten durch Komponenten-Ebenen reichen",
+    "description": "Baue eine Komponenten-Hierarchie mit 3 Ebenen: App → Dashboard → UserCard. Die App-Komponente hält einen User-Objekt-State (name, email, role). Dieser soll durch Prop Drilling an UserCard weitergereicht werden. UserCard zeigt die Daten an und hat einen Button, um die Rolle des Users zu ändern. Die Änderung muss bis zur App hochgereicht werden (Callback als Prop).",
+    "starter": "function UserCard({ user, onRoleChange }) {\n  return (\n    <div style={{ padding: '1rem', border: '1px solid #ccc', borderRadius: '8px' }}>\n      <h3>{user.name}</h3>\n      <p>Email: {user.email}</p>\n      <p>Rolle: <strong>{user.role}</strong></p>\n      <button onClick={() => onRoleChange(user.id)}>\n        Rolle wechseln (Admin ↔ User)\n      </button>\n    </div>\n  );\n}\n\nfunction Dashboard({ user, onRoleChange }) {\n  // Diese Komponente braucht user/onRoleChange selbst nicht,\n  // reicht sie aber an UserCard weiter (Prop Drilling)\n  return (\n    <div style={{ padding: '1rem', background: '#f5f5f5', borderRadius: '8px' }}>\n      <h2>Dashboard</h2>\n      {/* Dein Code hier – reiche Props an UserCard */}\n    </div>\n  );\n}\n\nfunction App() {\n  const [user, setUser] = React.useState({\n    id: 1,\n    name: 'Max Mustermann',\n    email: 'max@example.com',\n    role: 'User'\n  });\n\n  const handleRoleChange = (userId) => {\n    // Dein Code hier – wechsle zwischen 'Admin' und 'User'\n  };\n\n  return (\n    <div style={{ padding: '2rem', maxWidth: '500px' }}>\n      <h1>Prop Drilling Beispiel</h1>\n      {/* Dein Code hier – gib Dashboard die Props */}\n    </div>\n  );\n}",
+    "dataset": {},
+    "language": "javascript"
+  },
+  {
+    "id": 8,
+    "title": "Prop Destructuring – Sauberer Zugriff auf Props",
+    "description": "Schreibe eine Komponente, die Props mit Destructuring entgegennimmt. Zeige verschiedene Varianten: 1) Standard-Destructuring im Funktionsparameter, 2) Destructuring mit Default-Werten, 3) Umbenennung von Properties, 4) Rest-Pattern für verbleibende Props. Erstelle eine ProductCard, die diese Techniken demonstriert.",
+    "starter": "function ProductCard({\n  // Dein Code hier – destrukturiere:\n  // name, price (Default 0), category (Default 'Allgemein'),\n  // inStock (Default true), imageUrl (Default ''),\n  // und sammle den Rest in 'rest'\n}) {\n  return (\n    <div style={{\n      padding: '1rem',\n      border: '1px solid #ddd',\n      borderRadius: '8px',\n      maxWidth: '250px',\n      opacity: inStock ? 1 : 0.5\n    }}>\n      {imageUrl && (\n        <img src={imageUrl} alt={name} style={{ width: '100%', height: '120px', objectFit: 'cover', borderRadius: '4px' }} />\n      )}\n      <h3>{name}</h3>\n      <p>Preis: {price}€</p>\n      <p>Kategorie: {category}</p>\n      <p>{inStock ? '✅ Auf Lager' : '❌ Ausverkauft'}</p>\n      <details>\n        <summary>Weitere Props</summary>\n        <pre>{JSON.stringify(rest, null, 2)}</pre>\n      </details>\n    </div>\n  );\n}\n\nfunction App() {\n  return (\n    <div style={{ padding: '2rem' }}>\n      <h2>Prop Destructuring</h2>\n      <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>\n        <ProductCard\n          name=\"T-Shirt\"\n          price={29}\n          category=\"Bekleidung\"\n          inStock={true}\n          imageUrl=\"https://picsum.photos/seed/tshirt/200/120\"\n          brand=\"EcoWear\"\n          sizes=\"S-M-L-XL\"\n        />\n        <ProductCard\n          name=\"Software-Lizenz\"\n          price={199}\n          category=\"Digital\"\n          inStock={true}\n          licenseType=\"Single\"\n          version=\"2024\"\n        />\n        <ProductCard\n          name=\"Vintage Vase\"\n          // Nutze Default-Werte\n        />\n      </div>\n    </div>\n  );\n}",
+    "dataset": {},
+    "language": "javascript"
+  },
+  {
+    "id": 9,
+    "title": "Tailwind CSS – Responsive Produktkarte gestalten",
+    "description": "Erstelle eine responsive Produktkarte mit Tailwind CSS. Die Karte soll enthalten: ein Bild, einen Titel, eine Beschreibung, einen Preis, eine Bewertung (Sterne) und einen 'In den Warenkorb'-Button. Die Karte soll auf mobilen Geräten die volle Breite einnehmen und auf Desktop-Geräten in einem Grid dargestellt werden. Nutze Tailwind-Klassen wie grid, flex, shadow, hover:, rounded, gap, text-* und bg-*.",
+    "starter": "function ProductCard({ product }) {\n  return (\n    <div className=\"max-w-sm rounded-xl shadow-lg overflow-hidden bg-white hover:shadow-xl transition-shadow duration-300\">\n      <img\n        src={product.image}\n        alt={product.name}\n        className=\"w-full h-48 object-cover\"\n      />\n      <div className=\"p-5\">\n        <h2 className=\"text-xl font-bold text-gray-800 mb-2\">\n          {product.name}\n        </h2>\n        <p className=\"text-gray-600 text-sm mb-4\">\n          {product.description}\n        </p>\n        <div className=\"flex items-center justify-between mb-4\">\n          <span className=\"text-2xl font-bold text-indigo-600\">\n            {product.price}€\n          </span>\n          <span className=\"text-yellow-400 text-lg\">\n            {'★'.repeat(product.rating)}{'☆'.repeat(5 - product.rating)}\n          </span>\n        </div>\n        {/* Button – Tailwind-Styling */}\n        <button className=\"w-full bg-indigo-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-indigo-700 transition-colors\">\n          In den Warenkorb\n        </button>\n      </div>\n    </div>\n  );\n}\n\nfunction ProductGrid() {\n  const products = [\n    { id: 1, name: 'Kopfhörer', description: 'Kabellose Bluetooth-Kopfhörer mit Noise-Cancelling.', price: 79, rating: 4, image: 'https://picsum.photos/seed/headphones/400/250' },\n    { id: 2, name: 'Smartwatch', description: 'Fitness-Tracker mit Herzfrequenzmesser und GPS.', price: 199, rating: 5, image: 'https://picsum.photos/seed/watch/400/250' },\n    { id: 3, name: 'Laptop-Tasche', description: 'Wasserdichte Laptoptasche aus recyceltem Material.', price: 49, rating: 3, image: 'https://picsum.photos/seed/bag/400/250' },\n  ];\n\n  return (\n    <div className=\"min-h-screen bg-gray-100 p-8\">\n      <h1 className=\"text-3xl font-bold text-gray-900 mb-8 text-center\">Produkte</h1>\n      <div className=\"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto\">\n        {products.map(p => (\n          <ProductCard key={p.id} product={p} />\n        ))}\n      </div>\n    </div>\n  );\n}",
+    "dataset": {},
+    "language": "javascript"
+  },
+  {
+    "id": 10,
+    "title": "Array.find() – Eintrag anhand ID ausgeben",
+    "description": "Du hast ein Array von Produkten. Schreibe eine Komponente, die mit Array.find() das Produkt mit einer bestimmten ID findet und anzeigt. Behandle den Fall, dass kein Produkt mit der ID existiert (find() gibt undefined zurueck). Zeige dann 'Produkt nicht gefunden' an.",
+    "starter": "const products = [\n  { id: 1, name: 'T-Shirt', price: 29 },\n  { id: 2, name: 'Jeans', price: 79 },\n  { id: 3, name: 'Sneaker', price: 99 },\n];\n\nfunction ProductFinder({ productId = 2 }) {\n  // Dein Code hier\n\n  return (\n    <div>\n      {/* Produkt oder 'Nicht gefunden' anzeigen */}\n    </div>\n  );\n}",
+    "dataset": {},
+    "language": "javascript"
+  },
+  {
+    "id": 11,
+    "title": "Array.map() + Spread – Eintrag aktualisieren",
+    "description": "Erstelle eine Produktliste mit useState. Implementiere eine updateProduct-Funktion, die ein Produkt anhand seiner ID aktualisiert, ohne den State zu mutieren. Nutze .map() und den Spread-Operator (...), um eine neue Kopie des Arrays zu erstellen, bei der nur der eine Eintrag geaendert wird.",
+    "starter": "const initialProducts = [\n  { id: 1, name: 'T-Shirt', price: 29, inStock: true },\n  { id: 2, name: 'Jeans', price: 79, inStock: true },\n  { id: 3, name: 'Sneaker', price: 99, inStock: false },\n];\n\nfunction ProductList() {\n  const [products, setProducts] = React.useState(initialProducts);\n\n  const updateProduct = (id, changes) => {\n    // Dein Code hier\n  };\n\n  return (\n    <div>\n      <h2>Produkte</h2>\n      <ul>\n        {products.map(p => (\n          <li key={p.id}>\n            {p.name} – {p.price}€ {p.inStock ? '✅' : '❌'}\n          </li>\n        ))}\n      </ul>\n      <button onClick={() => updateProduct(2, { price: 89, inStock: false })}>\n        Jeans aktualisieren\n      </button>\n    </div>\n  );\n}",
+    "dataset": {},
+    "language": "javascript"
+  },
+  {
+    "id": 12,
+    "title": "Array.filter() – Eintrag entfernen",
+    "description": "Erstelle eine Todo-Liste mit Loeschfunktion. Implementiere eine deleteTodo-Funktion mit Array.filter(), die einen Eintrag anhand seiner ID entfernt. filter() erstellt ein neues Array – das ist genau das, was wir fuer unveraenderlichen State brauchen.",
+    "starter": "function TodoList() {\n  const [todos, setTodos] = React.useState([\n    { id: 1, text: 'React Hooks lernen', done: false },\n    { id: 2, text: 'Array-Methoden ueben', done: false },\n    { id: 3, text: 'Code pushen', done: true },\n  ]);\n\n  const deleteTodo = (id) => {\n    // Dein Code hier\n  };\n\n  return (\n    <div>\n      <h2>Todos</h2>\n      <ul>\n        {todos.map(todo => (\n          <li key={todo.id}>\n            {todo.text}\n            <button onClick={() => deleteTodo(todo.id)}>❌</button>\n          </li>\n        ))}\n      </ul>\n    </div>\n  );\n}",
+    "dataset": {},
     "language": "javascript"
   }
 ]

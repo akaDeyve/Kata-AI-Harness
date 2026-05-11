@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from "react";
-import { Clipboard, Check, Eye, EyeSlash, RotateCcw } from "./Icons";
+import { useState, useEffect, useRef } from 'react'
+import { Clipboard, Check, Eye, EyeSlash, RotateCcw } from './Icons'
 
 export default function EditorToolbar({
   code,
@@ -10,24 +10,24 @@ export default function EditorToolbar({
   enablePreview = true,
   language = 'javascript',
 }) {
-  const [copied, setCopied] = useState(false);
-  const timerRef = useRef(null);
+  const [copied, setCopied] = useState(false)
+  const timerRef = useRef(null)
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(code);
-    setCopied(true);
-    if (showToast) showToast("Code kopiert!", "success");
-    if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => setCopied(false), 2000);
-  };
+    navigator.clipboard.writeText(code)
+    setCopied(true)
+    if (showToast) showToast('Code kopiert!', 'success')
+    if (timerRef.current) clearTimeout(timerRef.current)
+    timerRef.current = setTimeout(() => setCopied(false), 2000)
+  }
 
   useEffect(() => {
     return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, []);
+      if (timerRef.current) clearTimeout(timerRef.current)
+    }
+  }, [])
 
-  const lineCount = code ? code.split("\n").length : 0;
+  const lineCount = code ? code.split('\n').length : 0
 
   return (
     <div className="flex items-center justify-between px-5 h-9 bg-bg border-b border-borderc select-none shrink-0">
@@ -36,6 +36,8 @@ export default function EditorToolbar({
         <div className="flex items-center gap-2 h-full px-3 border-b-2 border-text -mb-px">
           <span className="text-[13px] font-medium text-text">code.{language === 'typescript' ? 'tsx' : 'jsx'}</span>
           <span className="text-[10px] px-1.5 py-0.5 rounded bg-s3 text-t3 font-mono">{language}</span>
+        </div>
+      </div>
 
       {/* Actions */}
       <div className="flex items-center gap-1">
@@ -44,11 +46,9 @@ export default function EditorToolbar({
           <button
             onClick={onTogglePreview}
             className={`w-7 h-7 rounded flex items-center justify-center transition-colors ${
-              showPreview
-                ? "text-accent hover:bg-accent/10"
-                : "text-t3 hover:text-text hover:bg-s2"
+              showPreview ? 'text-accent hover:bg-accent/10' : 'text-t3 hover:text-text hover:bg-s2'
             }`}
-            title={showPreview ? "Editor-Ansicht" : "Live-Vorschau"}
+            title={showPreview ? 'Editor-Ansicht' : 'Live-Vorschau'}
           >
             {showPreview ? <EyeSlash size={13} /> : <Eye size={13} />}
           </button>
@@ -63,15 +63,13 @@ export default function EditorToolbar({
         <button
           onClick={handleCopy}
           className={`w-7 h-7 rounded flex items-center justify-center transition-colors ${
-            copied
-              ? "text-green hover:bg-green-dim"
-              : "text-t3 hover:text-text hover:bg-s2"
+            copied ? 'text-green hover:bg-green-dim' : 'text-t3 hover:text-text hover:bg-s2'
           }`}
-          title={copied ? "Kopiert!" : "Code kopieren"}
+          title={copied ? 'Kopiert!' : 'Code kopieren'}
         >
           {copied ? <Check size={13} /> : <Clipboard size={13} />}
         </button>
       </div>
     </div>
-  );
+  )
 }

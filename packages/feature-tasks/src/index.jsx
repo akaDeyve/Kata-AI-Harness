@@ -23,7 +23,7 @@ export const TASKS_FEATURE = {
 
 export function getTasksForDatasets(datasets) {
   if (!datasets || datasets.length === 0) return tasksData
-  return tasksData.filter(t => datasets.includes(t.dataset))
+  return tasksData.filter((t) => datasets.includes(t.dataset))
 }
 
 export function activate(context) {
