@@ -4,41 +4,47 @@
     "title": "Hello React",
     "description": "Erstelle eine React-Komponente, die 'Hello World' anzeigt.",
     "starter": "export default function App() {\n  return <h1>Hello World!</h1>;\n}",
-    "dataset": "react-hooks"
+    "dataset": "react-hooks",
+    "language": "javascript"
   },
   {
     "id": "react-002",
     "title": "useState Counter",
     "description": "Erstelle einen Counter mit useState. Zwei Buttons: +1 und -1.",
     "starter": "import { useState } from 'react';\n\nexport default function Counter() {\n  const [count, setCount] = useState(0);\n\n  return (\n    <div>\n      <h2>Counter: {count}</h2>\n      <button onClick={() => setCount(c => c + 1)}>+</button>\n      <button onClick={() => setCount(c => c - 1)}>-</button>\n    </div>\n  );\n}",
-    "dataset": "react-hooks"
+    "dataset": "react-hooks",
+    "language": "javascript"
   },
   {
     "id": "react-003",
     "title": "useEffect Timer",
     "description": "Erstelle einen Timer der jede Sekunde hochzählt. Nutze useEffect.",
     "starter": "import { useState, useEffect } from 'react';\n\nexport default function Timer() {\n  const [seconds, setSeconds] = useState(0);\n\n  // TODO: useEffect hinzufügen\n\n  return <h2>{seconds}s</h2>;\n}",
-    "dataset": "react-hooks"
+    "dataset": "react-hooks",
+    "language": "javascript"
   },
   {
     "id": "css-001",
     "title": "Farbige Box",
     "description": "Erstelle eine div-Box mit Hintergrundfarbe, Rundung und Schatten.",
     "starter": "export default function ColoredBox() {\n  return (\n    <div style={{\n      width: 200,\n      height: 100,\n      // TODO: backgroundColor, borderRadius, boxShadow\n    }}>\n      <p>Ich bin eine Box!</p>\n    </div>\n  );\n}",
-    "dataset": "css-basics"
+    "dataset": "css-basics",
+    "language": "javascript"
   },
   {
     "id": "js-001",
     "title": "Array Filter",
     "description": "Filtere alle geraden Zahlen aus einem Array.",
     "starter": "const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];\n\n// TODO: filter() nutzen um nur gerade Zahlen zu behalten\nconst even = numbers.filter(/* ... */);\n\nconsole.log(even); // [2, 4, 6, 8, 10]",
-    "dataset": "array-ops"
+    "dataset": "array-ops",
+    "language": "javascript"
   },
   {
     "id": "js-002",
     "title": "Array Map",
     "description": "Verdoppele jede Zahl in einem Array mit map().",
     "starter": "const numbers = [1, 2, 3, 4, 5];\n\n// TODO: map() nutzen um jede Zahl zu verdoppeln\nconst doubled = numbers.map(/* ... */);\n\nconsole.log(doubled); // [2, 4, 6, 8, 10]",
-    "dataset": "array-ops"
+    "dataset": "array-ops",
+    "language": "javascript"
   }
 ]

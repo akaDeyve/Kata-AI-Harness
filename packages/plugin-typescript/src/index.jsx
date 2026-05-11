@@ -3,6 +3,14 @@
    Language module for TypeScript
    ═══════════════════════════════════════════ */
 
+export const harness = {
+  name: '@harness/plugin-typescript',
+  id: 'plugin:typescript',
+  type: 'language',
+  contributes: { languages: ['typescript'] },
+  activationEvents: ['onLanguage:typescript'],
+}
+
 export const TYPESCRIPT_CONFIG = {
   id: 'typescript',
   name: 'TypeScript',

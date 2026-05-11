@@ -3,6 +3,14 @@
    AI-powered task generation
    ═══════════════════════════════════════════ */
 
+export const harness = {
+  name: '@harness/feature-generate',
+  id: 'feature:generate',
+  type: 'feature',
+  contributes: { features: ['generate'] },
+  activationEvents: ['onStartupFinished'],
+}
+
 export const GENERATE_FEATURE = {
   id: 'feature:generate',
   type: 'feature',

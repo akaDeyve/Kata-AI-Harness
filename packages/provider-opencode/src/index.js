@@ -3,6 +3,14 @@
    OpenCode Local AI Provider
    ═══════════════════════════════════════════ */
 
+export const harness = {
+  name: '@harness/provider-opencode',
+  id: 'provider:opencode',
+  type: 'aiProvider',
+  contributes: { aiProviders: ['opencode'] },
+  activationEvents: ['onDemand'],
+}
+
 export const OPENCODE_CONFIG = {
   id: 'opencode',
   name: 'OpenCode',

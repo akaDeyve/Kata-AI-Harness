@@ -8,6 +8,7 @@ export default function EditorToolbar({
   onTogglePreview,
   showPreview,
   enablePreview = true,
+  language = 'javascript',
 }) {
   const [copied, setCopied] = useState(false);
   const timerRef = useRef(null);
@@ -33,9 +34,8 @@ export default function EditorToolbar({
       {/* File tab */}
       <div className="flex items-center h-full">
         <div className="flex items-center gap-2 h-full px-3 border-b-2 border-text -mb-px">
-          <span className="text-[13px] font-medium text-text">Counter.jsx</span>
-        </div>
-      </div>
+          <span className="text-[13px] font-medium text-text">code.{language === 'typescript' ? 'tsx' : 'jsx'}</span>
+          <span className="text-[10px] px-1.5 py-0.5 rounded bg-s3 text-t3 font-mono">{language}</span>
 
       {/* Actions */}
       <div className="flex items-center gap-1">

@@ -3,6 +3,14 @@
    Language module for Python
    ═══════════════════════════════════════════ */
 
+export const harness = {
+  name: '@harness/plugin-python',
+  id: 'plugin:python',
+  type: 'language',
+  contributes: { languages: ['python'] },
+  activationEvents: ['onLanguage:python'],
+}
+
 export const PYTHON_CONFIG = {
   id: 'python',
   name: 'Python',

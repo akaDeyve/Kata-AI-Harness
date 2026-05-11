@@ -3,6 +3,14 @@
    Live code preview (Babel + iframe sandbox)
    ═══════════════════════════════════════════ */
 
+export const harness = {
+  name: '@harness/feature-preview',
+  id: 'feature:preview',
+  type: 'feature',
+  contributes: { features: ['preview'] },
+  activationEvents: ['onStartupFinished'],
+}
+
 export const PREVIEW_FEATURE = {
   id: 'feature:preview',
   type: 'feature',

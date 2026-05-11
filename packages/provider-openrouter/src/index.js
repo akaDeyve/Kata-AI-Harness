@@ -3,6 +3,14 @@
    OpenRouter AI Provider
    ═══════════════════════════════════════════ */
 
+export const harness = {
+  name: '@harness/provider-openrouter',
+  id: 'provider:openrouter',
+  type: 'aiProvider',
+  contributes: { aiProviders: ['openrouter'] },
+  activationEvents: ['onDemand'],
+}
+
 export const OPENROUTER_CONFIG = {
   id: 'openrouter',
   name: 'OpenRouter',

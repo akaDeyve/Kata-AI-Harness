@@ -10,14 +10,9 @@ import ApiKeyModal from './components/ApiKeyModal'
 import GenerateTaskModal from './components/GenerateTaskModal'
 import Toast from './components/Toast'
 import ConfigSettingsModal from './components/ConfigSettingsModal'
-import { callAI, loadApiConfig, storeApiConfig } from './lib/api'
+import { callAI, loadApiConfig, storeApiConfig, DEFAULT_PROVIDER } from './lib/api'
 import { FEEDBACK_PROMPT, CORRECTION_PROMPT } from './lib/prompts'
-import {
-  buildPluginState,
-  loadSavedCode,
-  saveCodeToStorage,
-  getInitialTasks,
-} from './lib/app-utils'
+import { buildPluginState, loadSavedCode, saveCodeToStorage, getInitialTasks } from './lib/app-utils'
 
 export default function App() {
   const [tasks, setTasks] = useState(getInitialTasks)
@@ -47,9 +42,14 @@ export default function App() {
   const [sidebarWidth, setSidebarWidth] = useState(220)
   const [rightPanelWidth, setRightPanelWidth] = useState(260)
 
-  const [apiConfig, setApiConfig] = useState(() => loadApiConfig())
+  const [apiConfig, setApiConfig] = useState({ key: '', baseUrl: '', model: '', apiType: DEFAULT_PROVIDER })
 
-  const selectedTask = tasks.find(t => t.id === selectedTaskId)
+  // Load saved API config asynchronously (decryption may need crypto.subtle)
+  useEffect(() => {
+    loadApiConfig().then(setApiConfig)
+  }, [])
+
+  const selectedTask = tasks.find((t) => t.id === selectedTaskId)
 
   const showToast = useCallback((message, type = 'info') => {
     if (toastTimer.current) clearTimeout(toastTimer.current)
@@ -65,13 +65,16 @@ export default function App() {
   }, [])
 
   const handleResetCode = useCallback(() => {
-    const task = tasks.find(t => t.id === selectedTaskId)
-    if (task) { setCode(task.starter || ''); showToast('Code zurückgesetzt', 'info') }
+    const task = tasks.find((t) => t.id === selectedTaskId)
+    if (task) {
+      setCode(task.starter || '')
+      showToast('Code zurückgesetzt', 'info')
+    }
   }, [selectedTaskId, tasks, showToast])
 
   // Load code when task changes
   useEffect(() => {
-    const task = tasks.find(t => t.id === selectedTaskId)
+    const task = tasks.find((t) => t.id === selectedTaskId)
     if (task) {
       const saved = loadSavedCode(selectedTaskId)
       setCode(saved ?? (task.starter || ''))
@@ -83,9 +86,9 @@ export default function App() {
     if (selectedTaskId && code) saveCodeToStorage(selectedTaskId, code)
   }, [code, selectedTaskId])
 
-  const handleSaveApiConfig = useCallback((config) => {
+  const handleSaveApiConfig = useCallback(async (config) => {
     setApiConfig(config)
-    storeApiConfig(config)
+    await storeApiConfig(config)
     setShowApiModal(false)
   }, [])
 
@@ -99,39 +102,60 @@ export default function App() {
 
   /* ── AI calls ── */
   const handleGetFeedback = useCallback(async () => {
-    if ((apiConfig.apiType !== 'opencode' && !apiConfig.key) || !selectedTask) { setShowApiModal(true); return }
-    setIsLoading(true); setFeedback(null)
+    if ((apiConfig.apiType !== 'opencode' && !apiConfig.key) || !selectedTask) {
+      setShowApiModal(true)
+      return
+    }
+    setIsLoading(true)
+    setFeedback(null)
     try {
       const user = `Aufgabe: ${selectedTask.title}\nBeschreibung: ${selectedTask.description}\n\nMein Code:\n\`\`\`\n${code}\n\`\`\`\n\nBitte bewerte meinen Code.`
       const content = await callAI(apiConfig, FEEDBACK_PROMPT, user)
       const scoreMatch = content.match(/Score:\s*(\d+)\/10/i)
       setFeedback({ content, score: scoreMatch ? parseInt(scoreMatch[1]) : null })
-    } catch (err) { setFeedback({ content: `Fehler: ${err.message}`, score: null, isError: true }) }
-    finally { setIsLoading(false) }
+    } catch (err) {
+      setFeedback({ content: `Fehler: ${err.message}`, score: null, isError: true })
+    } finally {
+      setIsLoading(false)
+    }
   }, [apiConfig, selectedTask, code])
 
   const handleGetCorrection = useCallback(async () => {
-    if ((apiConfig.apiType !== 'opencode' && !apiConfig.key) || !selectedTask) { setShowApiModal(true); return }
-    setIsCorrectionLoading(true); setCorrection(null)
+    if ((apiConfig.apiType !== 'opencode' && !apiConfig.key) || !selectedTask) {
+      setShowApiModal(true)
+      return
+    }
+    setIsCorrectionLoading(true)
+    setCorrection(null)
     try {
       const user = `Aufgabe: ${selectedTask.title}\nBeschreibung: ${selectedTask.description}\n\nMein Code:\n\`\`\`\n${code}\n\`\`\`\n\nBitte zeige die korrigierte Version.`
       const content = await callAI(apiConfig, CORRECTION_PROMPT, user)
       setCorrection({ content })
-    } catch (err) { setCorrection({ content: `Fehler: ${err.message}`, isError: true }) }
-    finally { setIsCorrectionLoading(false) }
+    } catch (err) {
+      setCorrection({ content: `Fehler: ${err.message}`, isError: true })
+    } finally {
+      setIsCorrectionLoading(false)
+    }
   }, [apiConfig, selectedTask, code])
 
   /* ── Generate task handler ── */
-  const handleSaveGeneratedTask = useCallback((newTask) => {
-    setTasks(prev => {
-      const updated = [...prev, newTask]
-      try { localStorage.setItem(STORAGE_TASKS_KEY, JSON.stringify(updated)) } catch { /* ignore */ }
-      return updated
-    })
-    setSelectedTaskId(newTask.id)
-    setShowGenerateModal(false)
-    showToast('Neue Aufgabe wurde hinzugefügt!', 'success')
-  }, [showToast])
+  const handleSaveGeneratedTask = useCallback(
+    (newTask) => {
+      setTasks((prev) => {
+        const updated = [...prev, newTask]
+        try {
+          localStorage.setItem(STORAGE_TASKS_KEY, JSON.stringify(updated))
+        } catch {
+          /* ignore */
+        }
+        return updated
+      })
+      setSelectedTaskId(newTask.id)
+      setShowGenerateModal(false)
+      showToast('Neue Aufgabe wurde hinzugefügt!', 'success')
+    },
+    [showToast],
+  )
 
   const handleSplitResize = useCallback((e) => {
     e.preventDefault()
@@ -159,7 +183,7 @@ export default function App() {
         selectedTaskId={selectedTaskId}
         onSelectTask={handleSelectTask}
         collapsed={sidebarCollapsed}
-        onToggleCollapse={() => setSidebarCollapsed(v => !v)}
+        onToggleCollapse={() => setSidebarCollapsed((v) => !v)}
         width={sidebarWidth}
         onWidthChange={setSidebarWidth}
         onApiClick={() => setShowApiModal(true)}
@@ -170,17 +194,24 @@ export default function App() {
       />
 
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-        <TopBar task={selectedTask}
-        />
+        <TopBar task={selectedTask} />
 
         <div className="flex-1 flex overflow-hidden">
           <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-            <EditorToolbar code={code} onReset={handleResetCode} showToast={showToast} onTogglePreview={() => setShowPreview(v => !v)} showPreview={showPreview} enablePreview={moduleState['feature:preview'] !== false} />
+            <EditorToolbar
+              code={code}
+              onReset={handleResetCode}
+              showToast={showToast}
+              onTogglePreview={() => setShowPreview((v) => !v)}
+              showPreview={showPreview}
+              enablePreview={moduleState['feature:preview'] !== false}
+              language={selectedTask?.language || 'javascript'}
+            />
             <div ref={splitViewRef} className="flex-1 flex overflow-hidden">
               {showPreview ? (
                 <>
                   <div className="overflow-hidden" style={{ width: `${100 - previewSplit}%` }}>
-                    <Editor code={code} onChange={setCode} />
+                    <Editor code={code} onChange={setCode} language={selectedTask?.language || 'javascript'} />
                   </div>
                   <div
                     className="w-1 cursor-col-resize hover:bg-accent/40 active:bg-accent/60 bg-border transition-colors shrink-0 relative z-10"
@@ -192,7 +223,7 @@ export default function App() {
                 </>
               ) : (
                 <div className="flex-1 overflow-hidden">
-                  <Editor code={code} onChange={setCode} />
+                  <Editor code={code} onChange={setCode} language={selectedTask?.language || 'javascript'} />
                 </div>
               )}
             </div>
@@ -208,7 +239,7 @@ export default function App() {
             onGetCorrection={handleGetCorrection}
             showToast={showToast}
             collapsed={rightPanelCollapsed}
-            onToggleCollapse={() => setRightPanelCollapsed(v => !v)}
+            onToggleCollapse={() => setRightPanelCollapsed((v) => !v)}
             width={rightPanelWidth}
             onWidthChange={setRightPanelWidth}
           />
@@ -217,7 +248,9 @@ export default function App() {
         <StatusBar task={selectedTask} code={code} />
       </div>
 
-      {showApiModal && <ApiKeyModal config={apiConfig} onSave={handleSaveApiConfig} onClose={() => setShowApiModal(false)} />}
+      {showApiModal && (
+        <ApiKeyModal config={apiConfig} onSave={handleSaveApiConfig} onClose={() => setShowApiModal(false)} />
+      )}
       {showGenerateModal && moduleState['feature:generate'] !== false && (
         <GenerateTaskModal
           apiConfig={apiConfig}

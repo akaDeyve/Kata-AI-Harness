@@ -23,24 +23,33 @@ export function buildPluginState() {
 /** Get enabled provider IDs from plugin state (disabled-list semantics) */
 export function getEnabledProviderIds() {
   const enabledIds = getEnabledPluginIds()
-  const all = DISCOVERED_PLUGINS
-    .filter(p => p.manifest.harness.type === 'aiProvider')
-    .map(p => p.manifest.harness.id.replace('provider:', ''))
+  const all = DISCOVERED_PLUGINS.filter((p) => p.manifest.harness.type === 'aiProvider').map((p) =>
+    p.manifest.harness.id.replace('provider:', ''),
+  )
   if (enabledIds.length === 0) return all
-  return all.filter(id => enabledIds.includes(`provider:${id}`))
+  return all.filter((id) => enabledIds.includes(`provider:${id}`))
 }
 
-/** Get enabled dataset names for task loading */
+/** Get all available dataset names derived from tasks.json */
 export function getEnabledDatasetNames() {
-  return ['react-hooks', 'css-basics', 'array-ops']
+  const allTasks = getTasksForDatasets([])
+  return [...new Set(allTasks.map((t) => t.dataset))]
 }
 
 export function loadSavedCode(taskId) {
-  try { return localStorage.getItem(`${STORAGE_PREFIX}${taskId}`) } catch { return null }
+  try {
+    return localStorage.getItem(`${STORAGE_PREFIX}${taskId}`)
+  } catch {
+    return null
+  }
 }
 
 export function saveCodeToStorage(taskId, code) {
-  try { localStorage.setItem(`${STORAGE_PREFIX}${taskId}`, code) } catch { /* ignore */ }
+  try {
+    localStorage.setItem(`${STORAGE_PREFIX}${taskId}`, code)
+  } catch {
+    /* ignore */
+  }
 }
 
 export function getInitialTasks() {

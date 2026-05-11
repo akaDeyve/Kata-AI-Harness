@@ -3,6 +3,15 @@
    Language module for JavaScript/React
    ═══════════════════════════════════════════ */
 
+/** @see {@link https://github.com/harness/plugin-javascript} */
+export const harness = {
+  name: '@harness/plugin-javascript',
+  id: 'plugin:javascript',
+  type: 'language',
+  contributes: { languages: ['javascript'] },
+  activationEvents: ['onLanguage:javascript'],
+}
+
 export const JAVASCRIPT_CONFIG = {
   id: 'javascript',
   name: 'JavaScript',

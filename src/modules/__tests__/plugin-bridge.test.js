@@ -1,22 +1,19 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { mockLocalStorage, installMockLocalStorage } from '../../test-utils'
 
 // Mock localStorage BEFORE importing the module
-const localStorageMock = (() => {
-  let store = {}
-  return {
-    getItem: vi.fn((key) => store[key] ?? null),
-    setItem: vi.fn((key, value) => { store[key] = String(value) }),
-    removeItem: vi.fn((key) => { delete store[key] }),
-    clear: vi.fn(() => { store = {} }),
-    get length() { return Object.keys(store).length },
-    key: vi.fn((i) => Object.keys(store)[i] ?? null),
-  }
-})()
-
-Object.defineProperty(global, 'localStorage', { value: localStorageMock, writable: true })
+const localStorageMock = mockLocalStorage()
+installMockLocalStorage(localStorageMock)
 
 // Import AFTER setting up mock
-const { getEnabledPluginIds, saveEnabledPluginIds, togglePlugin, saveDisabledPluginIds, getDisabledPluginIds, ALL_PLUGIN_IDS } = await import('../plugin-bridge')
+const {
+  getEnabledPluginIds,
+  saveEnabledPluginIds,
+  togglePlugin,
+  saveDisabledPluginIds,
+  getDisabledPluginIds,
+  ALL_PLUGIN_IDS,
+} = await import('../plugin-bridge')
 
 describe('plugin-bridge', () => {
   beforeEach(() => {

@@ -1,18 +1,9 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { buildPluginState, getEnabledDatasetNames } from '../app-utils'
+import { mockLocalStorage, installMockLocalStorage } from '../../test-utils'
 
-// Mock localStorage
-const localStorageMock = (() => {
-  let store = {}
-  return {
-    getItem: vi.fn((key) => store[key] ?? null),
-    setItem: vi.fn((key, value) => { store[key] = String(value) }),
-    removeItem: vi.fn((key) => { delete store[key] }),
-    clear: vi.fn(() => { store = {} }),
-  }
-})()
-
-Object.defineProperty(global, 'localStorage', { value: localStorageMock })
+const localStorageMock = mockLocalStorage()
+installMockLocalStorage(localStorageMock)
 
 describe('getEnabledDatasetNames', () => {
   it('returns default datasets', () => {

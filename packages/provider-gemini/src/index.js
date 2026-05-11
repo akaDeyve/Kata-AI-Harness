@@ -4,6 +4,14 @@
    ★ Empfohlen & Default
    ═══════════════════════════════════════════ */
 
+export const harness = {
+  name: '@harness/provider-gemini',
+  id: 'provider:gemini',
+  type: 'aiProvider',
+  contributes: { aiProviders: ['gemini'] },
+  activationEvents: ['onDemand'],
+}
+
 export const GEMINI_CONFIG = {
   id: 'gemini',
   name: 'Gemini',

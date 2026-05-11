@@ -1,45 +1,33 @@
 /* ═══════════════════════════════════════════════════════
-   Plugin Bridge – Connects new @harness/* packages
-   with the existing app. Loads all workspace plugins
-   and exposes them through a unified API.
+   Plugin Bridge – Connects @harness/* packages
+   with the existing app. Dynamically discovers plugins
+   via Vite's import.meta.glob.
    ═══════════════════════════════════════════════════════ */
 
-import { PluginRegistry, PluginContext } from '@harness/core'
-
-// ── Language Plugins ──
-import * as pluginJavaScript from '@harness/plugin-javascript'
-import * as pluginPython from '@harness/plugin-python'
-import * as pluginTypeScript from '@harness/plugin-typescript'
-
-// ── AI Provider Plugins ──
-import * as providerGemini from '@harness/provider-gemini'
-import * as providerOpenRouter from '@harness/provider-openrouter'
-import * as providerOllama from '@harness/provider-ollama'
-import * as providerOpenCode from '@harness/provider-opencode'
-
-// ── Feature Plugins ──
-import * as featurePreview from '@harness/feature-preview'
-import * as featureTasks from '@harness/feature-tasks'
-import * as featureGenerate from '@harness/feature-generate'
+/**
+ * Dynamically discover all @harness/* plugin packages.
+ * New plugins added to packages/ are auto-detected as long as they
+ * export a `harness` metadata object from their index file.
+ */
+function discoverPlugins() {
+  const modules = import.meta.glob('/packages/*/src/index.{js,jsx}', { eager: true })
+  const plugins = []
+  for (const [, mod] of Object.entries(modules)) {
+    if (mod.harness) {
+      plugins.push({
+        manifest: { name: mod.harness.name, harness: mod.harness },
+        module: mod,
+      })
+    }
+  }
+  return plugins
+}
 
 /**
  * All discovered plugin descriptors with harness manifests.
+ * Plugins export `harness` metadata → automatically registered.
  */
-export const DISCOVERED_PLUGINS = [
-  // Languages
-  { manifest: { name: '@harness/plugin-javascript', harness: { id: 'plugin:javascript', type: 'language', contributes: { languages: ['javascript'] }, activationEvents: ['onLanguage:javascript'] } }, module: pluginJavaScript },
-  { manifest: { name: '@harness/plugin-python', harness: { id: 'plugin:python', type: 'language', contributes: { languages: ['python'] }, activationEvents: ['onLanguage:python'] } }, module: pluginPython },
-  { manifest: { name: '@harness/plugin-typescript', harness: { id: 'plugin:typescript', type: 'language', contributes: { languages: ['typescript'] }, activationEvents: ['onLanguage:typescript'] } }, module: pluginTypeScript },
-  // Providers
-  { manifest: { name: '@harness/provider-gemini', harness: { id: 'provider:gemini', type: 'aiProvider', contributes: { aiProviders: ['gemini'] }, activationEvents: ['onDemand'] } }, module: providerGemini },
-  { manifest: { name: '@harness/provider-openrouter', harness: { id: 'provider:openrouter', type: 'aiProvider', contributes: { aiProviders: ['openrouter'] }, activationEvents: ['onDemand'] } }, module: providerOpenRouter },
-  { manifest: { name: '@harness/provider-ollama', harness: { id: 'provider:ollama', type: 'aiProvider', contributes: { aiProviders: ['ollama'] }, activationEvents: ['onDemand'] } }, module: providerOllama },
-  { manifest: { name: '@harness/provider-opencode', harness: { id: 'provider:opencode', type: 'aiProvider', contributes: { aiProviders: ['opencode'] }, activationEvents: ['onDemand'] } }, module: providerOpenCode },
-  // Features
-  { manifest: { name: '@harness/feature-preview', harness: { id: 'feature:preview', type: 'feature', contributes: { features: ['preview'] }, activationEvents: ['onStartupFinished'] } }, module: featurePreview },
-  { manifest: { name: '@harness/feature-tasks', harness: { id: 'feature:tasks', type: 'feature', contributes: { features: ['tasks'] }, activationEvents: ['onStartupFinished'] } }, module: featureTasks },
-  { manifest: { name: '@harness/feature-generate', harness: { id: 'feature:generate', type: 'feature', contributes: { features: ['generate'] }, activationEvents: ['onStartupFinished'] } }, module: featureGenerate },
-]
+export const DISCOVERED_PLUGINS = discoverPlugins()
 
 /**
  * All plugin IDs derived from DISCOVERED_PLUGINS.

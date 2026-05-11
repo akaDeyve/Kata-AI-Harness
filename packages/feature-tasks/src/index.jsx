@@ -5,6 +5,14 @@
 
 import tasksData from './tasks.json'
 
+export const harness = {
+  name: '@harness/feature-tasks',
+  id: 'feature:tasks',
+  type: 'feature',
+  contributes: { features: ['tasks'] },
+  activationEvents: ['onStartupFinished'],
+}
+
 export const TASKS_FEATURE = {
   id: 'feature:tasks',
   type: 'feature',

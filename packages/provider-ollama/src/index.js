@@ -3,6 +3,14 @@
    Ollama Local AI Provider
    ═══════════════════════════════════════════ */
 
+export const harness = {
+  name: '@harness/provider-ollama',
+  id: 'provider:ollama',
+  type: 'aiProvider',
+  contributes: { aiProviders: ['ollama'] },
+  activationEvents: ['onDemand'],
+}
+
 export const OLLAMA_CONFIG = {
   id: 'ollama',
   name: 'Ollama',
