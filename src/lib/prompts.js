@@ -15,5 +15,4 @@ Antworte NUR auf Deutsch.
 3. Erkläre kurz (2-3 Saetze), was verbessert wurde
 4. Zeige verbesserten Code in Markdown-Codeblock`
 
-export const GENERATE_TASK_PROMPT = `Du bist ein erfahrener Coding-Dozent. Erstelle eine neue Programmieraufgabe für React-Entwickler.
-`
+

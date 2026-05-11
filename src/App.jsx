@@ -10,12 +10,10 @@ import ApiKeyModal from './components/ApiKeyModal'
 import GenerateTaskModal from './components/GenerateTaskModal'
 import Toast from './components/Toast'
 import ConfigSettingsModal from './components/ConfigSettingsModal'
-import { getEnabledProviders } from './modules'
 import { callAI, loadApiConfig, storeApiConfig } from './lib/api'
 import { FEEDBACK_PROMPT, CORRECTION_PROMPT } from './lib/prompts'
 import {
   buildPluginState,
-  getEnabledProviderIds,
   loadSavedCode,
   saveCodeToStorage,
   getInitialTasks,
@@ -39,7 +37,6 @@ export default function App() {
   const [showGenerateModal, setShowGenerateModal] = useState(false)
   const [showSettingsModal, setShowSettingsModal] = useState(false)
   const [moduleState, setModuleState] = useState(buildPluginState)
-  const [enabledProviderIds, setEnabledProviderIds] = useState(getEnabledProviderIds)
   const [showPreview, setShowPreview] = useState(false)
   const [previewSplit, setPreviewSplit] = useState(50) // percentage for split view
   const splitViewRef = useRef(null)
@@ -95,7 +92,6 @@ export default function App() {
   const handleModuleSettingsChange = useCallback(() => {
     const state = buildPluginState()
     setModuleState(state)
-    setEnabledProviderIds(getEnabledProviderIds())
     if (state['feature:preview'] === false) {
       setShowPreview(false)
     }
@@ -235,7 +231,6 @@ export default function App() {
           onClose={() => setShowSettingsModal(false)}
           onSave={(newState) => {
             setModuleState(newState)
-            setEnabledProviderIds(getEnabledProviders())
             if (newState['feature:preview'] === false) setShowPreview(false)
             showToast('Einstellungen gespeichert', 'success')
           }}

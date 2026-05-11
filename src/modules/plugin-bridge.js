@@ -42,50 +42,6 @@ export const DISCOVERED_PLUGINS = [
 ]
 
 /**
- * Initialize the plugin system: register all discovered plugins,
- * activate the enabled ones, and return the registry + context.
- *
- * @param {Object} [hostAPI] - Host application API exposed to plugins
- * @returns {{ registry: PluginRegistry, context: PluginContext }}
- */
-export async function initPlugins(hostAPI = {}) {
-  const registry = new PluginRegistry()
-  const context = new PluginContext({ hostAPI })
-
-  // Register all discovered plugins
-  for (const { manifest, module } of DISCOVERED_PLUGINS) {
-    const harness = manifest.harness
-    registry.register({
-      id: harness.id,
-      name: manifest.name,
-      type: harness.type,
-      contributes: harness.contributes || {},
-      activationEvents: harness.activationEvents || [],
-      activate: module.activate || (() => module),
-      deactivate: module.deactivate,
-    })
-  }
-
-  // Get enabled plugin IDs from runtime config
-  const enabledIds = getEnabledPluginIds()
-
-  // Activate enabled plugins (or all if none configured)
-  const pluginsToActivate = enabledIds.length > 0
-    ? registry.getAll().filter(p => enabledIds.includes(p.id))
-    : registry.getAll()
-
-  for (const plugin of pluginsToActivate) {
-    try {
-      await registry.activate(plugin.id, context.createSnapshot(plugin.id))
-    } catch (err) {
-      console.warn(`[PluginBridge] Failed to activate "${plugin.id}":`, err)
-    }
-  }
-
-  return { registry, context }
-}
-
-/**
  * All plugin IDs derived from DISCOVERED_PLUGINS.
  */
 export const ALL_PLUGIN_IDS = DISCOVERED_PLUGINS.map(p => p.manifest.harness.id)
@@ -179,16 +135,4 @@ export function getPluginsByType(registry) {
   return { providers, languages, features }
 }
 
-/**
- * Query active plugins by type.
- */
-export function queryPlugins(registry, type) {
-  return registry.queryByType(type, true)
-}
 
-/**
- * Get a plugin instance by ID.
- */
-export function getPluginInstance(registry, pluginId) {
-  return registry.getInstance(pluginId)
-}

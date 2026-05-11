@@ -11,7 +11,7 @@ export default function StatusBar({ task, code = "" }) {
         </span>
         {task && (
           <span className="text-xs text-t3">
-            {task.name}
+            {task.title || task.name}
           </span>
         )}
       </div>

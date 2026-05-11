@@ -4,7 +4,7 @@ export default function TopBar({ task }) {
       <div className="flex items-center gap-2.5 min-w-0">
         {task ? (
           <span className="text-sm text-text truncate font-medium">
-            {task.name}
+            {task.title || task.name}
           </span>
         ) : (
           <span className="text-sm text-t3">CodeLab</span>

@@ -4,14 +4,8 @@
    Re-exports for backward compatibility.
    ═══════════════════════════════════════════ */
 
-// Plugin System
-export {
-  getEnabledPluginIds,
-  saveEnabledPluginIds,
-  togglePlugin,
-  getPluginsByType,
-  DISCOVERED_PLUGINS,
-} from './plugin-bridge.js'
+// Plugin System – direkt imports werden von app-utils und ConfigSettingsModal verwendet
+// (über plugin-bridge.js, nicht über dieses Modul)
 
 // Backward compatibility – only what's actually consumed by src/
 export { getTasksForDatasets } from '@harness/feature-tasks'
