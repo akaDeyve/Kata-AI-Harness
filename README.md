@@ -1,6 +1,6 @@
 # Code Trainer AI
 
-[![Version](https://img.shields.io/badge/version-2.0.0-blue)](https://github.com/your-username/coding-trainer)
+[![Version](https://img.shields.io/badge/version-0.2.0-blue)](https://github.com/your-username/coding-trainer)
 [![React](https://img.shields.io/badge/React-18-61DAFB?logo=react)](https://reactjs.org)
 [![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite)](https://vitejs.dev)
 [![Tailwind](https://img.shields.io/badge/Tailwind-3-06B6D4?logo=tailwindcss)](https://tailwindcss.com)
