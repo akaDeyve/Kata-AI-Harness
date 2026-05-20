@@ -1,4 +1,4 @@
-# Code Trainer AI
+# Code Trainer AI (BETA)
 
 [![Version](https://img.shields.io/badge/version-0.2.0-blue)](https://github.com/your-username/coding-trainer)
 [![React](https://img.shields.io/badge/React-18-61DAFB?logo=react)](https://reactjs.org)
