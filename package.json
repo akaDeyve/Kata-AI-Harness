@@ -1,72 +1,8 @@
 {
-  "name": "coding-trainer",
-  "private": true,
-  "version": "2.0.0",
-  "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "lint": "eslint src/ packages/ --ext .js,.jsx",
-    "lint:fix": "eslint src/ packages/ --ext .js,.jsx --fix",
-    "format": "prettier --check \"src/**/*.{js,jsx,css}\" \"packages/**/*.{js,jsx,css}\"",
-    "format:fix": "prettier --write \"src/**/*.{js,jsx,css}\" \"packages/**/*.{js,jsx,css}\""
-  },
-  "harness": {
-    "contributes": {
-      "languages": [
-        "javascript",
-        "python",
-        "typescript"
-      ],
-      "aiProviders": [
-        "gemini",
-        "openrouter",
-        "ollama",
-        "opencode"
-      ],
-      "features": [
-        "preview",
-        "tasks",
-        "generate"
-      ]
-    }
-  },
-  "dependencies": {
-    "@babel/standalone": "^7.29.4",
-    "@codemirror/autocomplete": "^6.20.2",
-    "@codemirror/commands": "^6.6.0",
-    "@codemirror/lang-javascript": "^6.2.2",
-    "@codemirror/language": "^6.10.5",
-    "@codemirror/search": "^6.7.0",
-    "@codemirror/state": "^6.4.1",
-    "@codemirror/view": "^6.33.0",
-    "@harness/core": "file:packages/core",
-    "@harness/feature-generate": "file:packages/feature-generate",
-    "@harness/feature-preview": "file:packages/feature-preview",
-    "@harness/feature-tasks": "file:packages/feature-tasks",
-    "@harness/plugin-javascript": "file:packages/plugin-javascript",
-    "@harness/plugin-python": "file:packages/plugin-python",
-    "@harness/plugin-typescript": "file:packages/plugin-typescript",
-    "@harness/provider-gemini": "file:packages/provider-gemini",
-    "@harness/provider-ollama": "file:packages/provider-ollama",
-    "@harness/provider-opencode": "file:packages/provider-opencode",
-    "@harness/provider-openrouter": "file:packages/provider-openrouter",
-    "@phosphor-icons/react": "^2.1.10",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-syntax-highlighter": "^16.1.1"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-react": "^4.3.1",
-    "autoprefixer": "^10.4.20",
-    "eslint": "^9.20.0",
-    "postcss": "^8.4.41",
-    "prettier": "^3.5.0",
-    "tailwindcss": "^3.4.10",
-    "vite": "^5.4.2",
-    "vitest": "^4.1.5"
+    "dev": "cd \"AI Code Trainer\" && npm run dev",
+    "build": "cd \"AI Code Trainer\" && npm run build",
+    "lint": "cd \"AI Code Trainer\" && npm run lint",
+    "preview": "cd \"AI Code Trainer\" && npm run preview"
   }
 }
