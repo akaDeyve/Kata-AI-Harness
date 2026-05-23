@@ -4,5 +4,8 @@
     "build": "cd \"AI Code Trainer\" && npm run build",
     "lint": "cd \"AI Code Trainer\" && npm run lint",
     "preview": "cd \"AI Code Trainer\" && npm run preview"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2"
   }
 }

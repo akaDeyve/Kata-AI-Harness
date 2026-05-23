@@ -14,15 +14,14 @@
       </div> */
 
 .ai-modal {
-  position: fixed;
+  /* position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%); */
   background-color: #fff;
   padding: 20px;
   border-radius: 8px;
   border: 1px solid #ccc;
-  display: flex;
 }
 
 .ai-modal-textarea {
@@ -43,9 +42,14 @@
   height: 40px;
   background-color: transparent;
   border: none;
+  
 }
 
 .ai-modal-output {
   margin-bottom: 10px;
   color: var(--text-color);
+}
+
+.ai-modal-input {
+display: flex;
 }
